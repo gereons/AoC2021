@@ -1,7 +1,7 @@
 import Foundation
 
-Puzzle1.run()
-//Puzzle2.run()
+//Puzzle1.run()
+Puzzle2.run()
 //Puzzle3.run()
 //Puzzle4.run()
 //Puzzle5.run()
@@ -29,7 +29,7 @@ Puzzle1.run()
 public func readFile(named name: String) -> [String] {
     let url = URL(fileURLWithPath: "/Users/gereon/Developer/AdventOfCode/AoC2021/Fixtures/\(name)")
     if let data = try? Data(contentsOf: url), let str = String(bytes: data, encoding: .utf8) {
-        return str.components(separatedBy: "\n")
+        return str.components(separatedBy: "\n").dropLast()
     }
     return []
 }
