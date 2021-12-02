@@ -1,5 +1,8 @@
 import Foundation
 
+// Solution for part 1: 1532
+// Solution for part 2: 1571
+
 enum Puzzle1 {
     static let testData = [ 199, 200, 208, 210, 200, 207, 240, 269, 260, 263 ]
 
