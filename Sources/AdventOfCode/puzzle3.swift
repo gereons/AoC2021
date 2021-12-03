@@ -3,8 +3,8 @@ import Foundation
 //  Solution for part 1: 2583164
 //  Solution for part 2: 2784375
 
-enum Puzzle3 {
-    static let testData = [
+struct Puzzle3 {
+    let testData = [
         "00100",
         "11110",
         "10110",
@@ -23,13 +23,15 @@ enum Puzzle3 {
         let data = readFile(named: "puzzle3.txt")
         // let data = testData
 
-        let bitcounts = bitcounts(for: data)
 
-        print("Solution for part 1: \(part1(bitcounts, measurements: data.count))")
-        print("Solution for part 2: \(part2(bitcounts, data: data))")
+        let puzzle = Puzzle3()
+        let bitcounts = puzzle.bitcounts(for: data)
+
+        print("Solution for part 1: \(puzzle.part1(bitcounts, measurements: data.count))")
+        print("Solution for part 2: \(puzzle.part2(bitcounts, data: data))")
     }
 
-    private static func bitcounts(for data: [String]) -> [Int] {
+    private func bitcounts(for data: [String]) -> [Int] {
         var bitcounts = [Int](repeating: 0, count: data[0].count)
         for str in data {
             for (index, digit) in str.enumerated() {
@@ -40,7 +42,8 @@ enum Puzzle3 {
         return bitcounts
     }
 
-    static func part1(_ bitcounts: [Int], measurements: Int) -> Int {
+    func part1(_ bitcounts: [Int], measurements: Int) -> Int {
+        // let timer = Timer("part1"); defer { timer.show() }
         var gamma = ""
         var epsilon = ""
         for index in 0..<bitcounts.count {
@@ -57,9 +60,8 @@ enum Puzzle3 {
         return Int(gamma, radix: 2)! * Int(epsilon, radix: 2)!
     }
 
-    static func part2(_ bitcounts: [Int], data: [String]) -> Int {
-        let timer = Timer("part2")
-        defer { timer.show() }
+    func part2(_ bitcounts: [Int], data: [String]) -> Int {
+        // let timer = Timer("part2"); defer { timer.show() }
         let oxygenRating = findRating(bitcounts, data: data, criterium: .mostCommon)
         let co2Rating = findRating(bitcounts, data: data, criterium: .leastCommon)
         return oxygenRating * co2Rating
@@ -84,7 +86,7 @@ enum Puzzle3 {
         }
     }
 
-    static func findRating(_ bitcounts: [Int], data: [String], criterium: BitCriterium) -> Int {
+    func findRating(_ bitcounts: [Int], data: [String], criterium: BitCriterium) -> Int {
         var data = data
         var bitcounts = bitcounts
         var prefix = ""
@@ -97,7 +99,7 @@ enum Puzzle3 {
                 prefix.append(criterium.minorityBit)
             }
             data = data.filter { $0.hasPrefix(prefix) }
-            bitcounts = Self.bitcounts(for: data)
+            bitcounts = self.bitcounts(for: data)
             // print("index \(index), prefix \(prefix), data \(data)")
             if data.count == 1 {
                 return Int(data[0], radix: 2)!

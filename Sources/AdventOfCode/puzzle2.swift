@@ -3,8 +3,8 @@ import Foundation
 //    Solution for part 1: 1893605
 //    Solution for part 2: 2120734350
 
-enum Puzzle2 {
-    static let testData = [
+struct Puzzle2 {
+    let testData = [
         "forward 5",
         "down 5",
         "forward 8",
@@ -35,11 +35,13 @@ enum Puzzle2 {
         // let data = testData
         let commands = readFile(named: "puzzle2.txt").map { Command(from: $0) }
 
-        print("Solution for part 1: \(part1(commands))")
-        print("Solution for part 2: \(part2(commands))")
+        let puzzle = Puzzle2()
+
+        print("Solution for part 1: \(puzzle.part1(commands))")
+        print("Solution for part 2: \(puzzle.part2(commands))")
     }
 
-    static func part1(_ commmands: [Command]) -> Int {
+    private func part1(_ commmands: [Command]) -> Int {
         var position = 0
         var depth = 0
         for command in commmands {
@@ -53,7 +55,7 @@ enum Puzzle2 {
         return position * depth
     }
 
-    static func part2(_ commands: [Command]) -> Int {
+    private func part2(_ commands: [Command]) -> Int {
         var position = 0
         var depth = 0
         var aim = 0
