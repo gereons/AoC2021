@@ -1,8 +1,8 @@
 import Foundation
 
 // Puzzle1.run()
-Puzzle2.run()
-// Puzzle3.run()
+// Puzzle2.run()
+Puzzle3.run()
 // Puzzle4.run()
 // Puzzle5.run()
 // Puzzle6.run()
@@ -35,22 +35,16 @@ public func readFile(named name: String) -> [String] {
     return []
 }
 
-public func getGroups(_ lines: [String]) -> [String] {
-    var groups = [String]()
+class Timer {
+    private let start = Date().timeIntervalSinceReferenceDate
+    private let name: String
 
-    var tmp = [String]()
-    for line in lines {
-        if line.isEmpty {
-            groups.append(tmp.joined(separator: " "))
-            tmp = []
-        } else {
-            tmp.append(line)
-        }
+    init(_ name: String) {
+        self.name = name
     }
 
-    if !tmp.isEmpty {
-        groups.append(tmp.joined(separator: " "))
+    func show() {
+        let elapsed = Date().timeIntervalSinceReferenceDate - start
+        print("\(name) took \(elapsed)s")
     }
-
-    return groups
 }
