@@ -1,5 +1,8 @@
 import Foundation
 
+// where do the puzzle input files live relative to $HOME
+let fixturePath = "Developer/AdventOfCode/AoC2021/Fixtures"
+
 //Puzzle2.run()
 //Puzzle3.run()
 //Puzzle1.run()
@@ -28,7 +31,16 @@ Puzzle4.run()
 Timer.showTotal()
 
 public func readFile(named name: String) -> [String] {
-    let url = URL(fileURLWithPath: "/Users/gereon/Developer/AdventOfCode/AoC2021/Fixtures/\(name)")
+    // relative url, works when running with "swift run"
+    var url = URL(fileURLWithPath: "Fixtures/\(name)")
+    do {
+        _ = try url.checkResourceIsReachable()
+    } catch {
+        // absolute url, used when running from Xcode
+        if let home = ProcessInfo().environment["HOME"] {
+            url = URL(fileURLWithPath: "\(home)/\(fixturePath)/\(name)")
+        }
+    }
     if let data = try? Data(contentsOf: url), let str = String(bytes: data, encoding: .utf8) {
         return str.components(separatedBy: "\n").dropLast()
     }
