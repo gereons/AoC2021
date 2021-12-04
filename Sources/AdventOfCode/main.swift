@@ -1,8 +1,8 @@
 import Foundation
 
-Puzzle2.run()
-Puzzle3.run()
-Puzzle1.run()
+//Puzzle2.run()
+//Puzzle3.run()
+//Puzzle1.run()
 Puzzle4.run()
 // Puzzle5.run()
 // Puzzle6.run()
@@ -25,6 +25,7 @@ Puzzle4.run()
 // Puzzle23.run()
 // Puzzle24.run()
 // Puzzle25.run()
+Timer.showTotal()
 
 public func readFile(named name: String) -> [String] {
     let url = URL(fileURLWithPath: "/Users/gereon/Developer/AdventOfCode/AoC2021/Fixtures/\(name)")
@@ -39,12 +40,19 @@ class Timer {
     private let start = Date().timeIntervalSinceReferenceDate
     private let name: String
 
+    private static var total: TimeInterval = 0
+
     init(day: Int, fun: StaticString = #function) {
         self.name = "Day \(day) \(fun)"
     }
 
     func show() {
         let elapsed = Date().timeIntervalSinceReferenceDate - start
+        Self.total += elapsed
         print("\(name) took \(elapsed)s")
+    }
+
+    static func showTotal() {
+        print("Total time: \(Self.total)s")
     }
 }
