@@ -1,9 +1,9 @@
 import Foundation
 
-// Puzzle1.run()
-// Puzzle2.run()
+Puzzle2.run()
 Puzzle3.run()
-// Puzzle4.run()
+Puzzle1.run()
+Puzzle4.run()
 // Puzzle5.run()
 // Puzzle6.run()
 // Puzzle7.run()
@@ -39,8 +39,8 @@ class Timer {
     private let start = Date().timeIntervalSinceReferenceDate
     private let name: String
 
-    init(_ name: String) {
-        self.name = name
+    init(day: Int, fun: StaticString = #function) {
+        self.name = "Day \(day) \(fun)"
     }
 
     func show() {

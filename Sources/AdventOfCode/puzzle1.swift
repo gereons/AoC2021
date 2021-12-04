@@ -4,10 +4,10 @@ import Foundation
 // Solution for part 2: 1571
 
 struct Puzzle1 {
-    let testData = [ 199, 200, 208, 210, 200, 207, 240, 269, 260, 263 ]
+    static let testData = [ 199, 200, 208, 210, 200, 207, 240, 269, 260, 263 ]
 
     static func run() {
-        // let data = testData
+        // let data = Self.testData
         let data = readFile(named: "puzzle1.txt").compactMap { Int($0) }
 
         let puzzle = Puzzle1()
@@ -17,6 +17,7 @@ struct Puzzle1 {
     }
 
     private func part1(_ data: [Int]) -> Int {
+        let timer = Timer(day: 1); defer { timer.show() }
         var increments = 0
         var previousDepth: Int? = nil
 
@@ -31,6 +32,7 @@ struct Puzzle1 {
     }
 
     private func part2(_ data: [Int]) -> Int {
+        let timer = Timer(day: 1); defer { timer.show() }
         var windowSums = [Int]()
         for index in 0..<data.count - 2 {
             let window = data[index..<index+3]

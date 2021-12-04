@@ -4,7 +4,7 @@ import Foundation
 //  Solution for part 2: 2784375
 
 struct Puzzle3 {
-    let testData = [
+    static let testData = [
         "00100",
         "11110",
         "10110",
@@ -20,9 +20,8 @@ struct Puzzle3 {
     ]
 
     static func run() {
+        // let data = Self.testData
         let data = readFile(named: "puzzle3.txt")
-        // let data = testData
-
 
         let puzzle = Puzzle3()
         let bitcounts = puzzle.bitcounts(for: data)
@@ -43,7 +42,7 @@ struct Puzzle3 {
     }
 
     func part1(_ bitcounts: [Int], measurements: Int) -> Int {
-        // let timer = Timer("part1"); defer { timer.show() }
+        let timer = Timer(day: 3); defer { timer.show() }
         var gamma = ""
         var epsilon = ""
         for index in 0..<bitcounts.count {
@@ -61,7 +60,7 @@ struct Puzzle3 {
     }
 
     func part2(_ bitcounts: [Int], data: [String]) -> Int {
-        // let timer = Timer("part2"); defer { timer.show() }
+        let timer = Timer(day: 3); defer { timer.show() }
         let oxygenRating = findRating(bitcounts, data: data, criterium: .mostCommon)
         let co2Rating = findRating(bitcounts, data: data, criterium: .leastCommon)
         return oxygenRating * co2Rating
