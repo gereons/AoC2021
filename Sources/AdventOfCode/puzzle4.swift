@@ -57,7 +57,7 @@ struct Puzzle4 {
         var bingo: Bool {
             // check rows
             for row in entries {
-                if row.filter({ $0.called }).count == row.count {
+                if row.allSatisfy({ $0.called }) {
                     return true
                 }
             }
