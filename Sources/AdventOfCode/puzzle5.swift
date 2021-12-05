@@ -27,6 +27,18 @@ struct Puzzle5 {
         var diagonal: Bool {
             start.x != end.x && start.y != end.y
         }
+
+        var allPoints: [Point] {
+            let deltaX = abs(end.x - start.x)
+            let deltaY = abs(end.y - start.y)
+            let stepX = (end.x - start.x).signum()
+            let stepY = (end.y - start.y).signum()
+
+            let steps = max(deltaX, deltaY)
+            return (0...steps).map { d in
+                Point(x: start.x + d * stepX, y: start.y + d * stepY)
+            }
+        }
     }
 
     static func run() {
@@ -62,23 +74,9 @@ struct Puzzle5 {
         print("Solution for part 2: \(puzzle.part2(vectors, max))")
     }
 
-    private func step(_ x: Int) -> Int {
-        if x > 0 { return 1 }
-        if x < 0 { return -1 }
-        return 0
-    }
-
     private func draw(_ vector: Vector, in grid: inout [[Int]]) {
-        let stepX = step(vector.end.x - vector.start.x)
-        let stepY = step(vector.end.y - vector.start.y)
-
-        var x = vector.start.x
-        var y = vector.start.y
-        grid[y][x] += 1
-        while x != vector.end.x || y != vector.end.y {
-            x += stepX
-            y += stepY
-            grid[y][x] += 1
+        vector.allPoints.forEach { point in
+            grid[point.y][point.x] += 1
         }
     }
 
@@ -93,20 +91,20 @@ struct Puzzle5 {
 
     private func part1(_ vectors: [Vector], _ max: Point) -> Int {
         let timer = Timer(day: 5); defer { timer.show() }
-        return findVents(vectors, max, excludeDiagonals: true)
+        let vectors = vectors.filter { !$0.diagonal }
+        return findVents(vectors, max)
     }
 
     private func part2(_ vectors: [Vector], _ max: Point) -> Int {
         let timer = Timer(day: 5); defer { timer.show() }
-        return findVents(vectors, max, excludeDiagonals: false)
+        return findVents(vectors, max)
     }
 
-    private func findVents(_ vectors: [Vector], _ max: Point, excludeDiagonals: Bool) -> Int {
+    private func findVents(_ vectors: [Vector], _ max: Point) -> Int {
         let line = [Int](repeating: 0, count: max.x)
         var grid = [[Int]](repeating: line, count: max.y)
 
-        let drawVectors = excludeDiagonals ? vectors.filter { $0.diagonal } : vectors
-        for vector in drawVectors {
+        for vector in vectors {
             draw(vector, in: &grid)
         }
         // show(grid)
