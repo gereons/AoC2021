@@ -18,6 +18,10 @@ struct Puzzle1 {
 
     private func part1(_ data: [Int]) -> Int {
         let timer = Timer(day: 1); defer { timer.show() }
+        return sumIfGreater(data)
+    }
+
+    private func sumIfGreater(_ data: [Int]) -> Int {
         var increments = 0
         var previousDepth: Int? = nil
 
@@ -40,6 +44,6 @@ struct Puzzle1 {
             windowSums.append(sum)
         }
 
-        return part1(windowSums)
+        return sumIfGreater(windowSums)
     }
 }

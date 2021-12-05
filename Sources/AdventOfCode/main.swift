@@ -3,11 +3,11 @@ import Foundation
 // where do the puzzle input files live relative to $HOME
 let fixturePath = "Developer/AdventOfCode/AoC2021/Fixtures"
 
+//Puzzle1.run()
 //Puzzle2.run()
 //Puzzle3.run()
-//Puzzle1.run()
-Puzzle4.run()
-// Puzzle5.run()
+//Puzzle4.run()
+Puzzle5.run()
 // Puzzle6.run()
 // Puzzle7.run()
 // Puzzle8.run()

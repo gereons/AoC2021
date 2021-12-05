@@ -1,22 +1,122 @@
 import Foundation
 
+// Solution for part 1: 7269
+// Solution for part 2: 21140
+
 struct Puzzle5 {
-    let testData = [ "" ]
+    static let testData = [
+        "0,9 -> 5,9",
+        "8,0 -> 0,8",
+        "9,4 -> 3,4",
+        "2,2 -> 2,1",
+        "7,0 -> 7,4",
+        "6,4 -> 2,0",
+        "0,9 -> 2,9",
+        "3,4 -> 1,4",
+        "0,0 -> 8,8",
+        "5,5 -> 8,2"
+    ]
+
+    struct Point {
+        let x, y: Int
+    }
+
+    struct Vector {
+        let start, end: Point
+
+        var diagonal: Bool {
+            start.x != end.x && start.y != end.y
+        }
+    }
 
     static func run() {
+        // let data = Self.testData
         let data = readFile(named: "puzzle5.txt")
 
+        var vectors = [Vector]()
+        var maxX = 0
+        var maxY = 0
+
+        let regex = try! NSRegularExpression(pattern: #"(\d*),(\d*) -> (\d*),(\d*)"#, options: [])
+        for line in data {
+            let range = NSRange(location: 0, length: line.count)
+            if let match = regex.firstMatch(in: line, options: .anchored, range: range) {
+                let x1 = Int(line[Range(match.range(at: 1), in: line)!])!
+                let y1 = Int(line[Range(match.range(at: 2), in: line)!])!
+                let x2 = Int(line[Range(match.range(at: 3), in: line)!])!
+                let y2 = Int(line[Range(match.range(at: 4), in: line)!])!
+
+                maxX = max(maxX, max(x1, x2))
+                maxY = max(maxY, max(y1, y2))
+
+                let p1 = Point(x: x1, y: y1)
+                let p2 = Point(x: x2, y: y2)
+                vectors.append(Vector(start: p1, end: p2))
+            }
+        }
+
         let puzzle = Puzzle5()
+        let max = Point(x: maxX + 1, y: maxY + 1)
 
-        print("Solution for part 1: \(puzzle.part1(data))")
-        print("Solution for part 2: \(puzzle.part2(data))")
+        print("Solution for part 1: \(puzzle.part1(vectors, max))")
+        print("Solution for part 2: \(puzzle.part2(vectors, max))")
     }
 
-    private func part1(_ data: [String]) -> Int {
-        return 42
+    private func step(_ x: Int) -> Int {
+        if x > 0 { return 1 }
+        if x < 0 { return -1 }
+        return 0
     }
 
-    private func part2(_ data: [String]) -> Int {
-        return 42
+    private func draw(_ vector: Vector, in grid: inout [[Int]]) {
+        let stepX = step(vector.end.x - vector.start.x)
+        let stepY = step(vector.end.y - vector.start.y)
+
+        var x = vector.start.x
+        var y = vector.start.y
+        grid[y][x] += 1
+        while x != vector.end.x || y != vector.end.y {
+            x += stepX
+            y += stepY
+            grid[y][x] += 1
+        }
+    }
+
+    private func show(_ grid: [[Int]]) {
+        for line in grid {
+            for point in line {
+                print(point == 0 ? "." : point, terminator: " ")
+            }
+            print()
+        }
+    }
+
+    private func part1(_ vectors: [Vector], _ max: Point) -> Int {
+        let timer = Timer(day: 5); defer { timer.show() }
+        return findVents(vectors, max, excludeDiagonals: true)
+    }
+
+    private func part2(_ vectors: [Vector], _ max: Point) -> Int {
+        let timer = Timer(day: 5); defer { timer.show() }
+        return findVents(vectors, max, excludeDiagonals: false)
+    }
+
+    private func findVents(_ vectors: [Vector], _ max: Point, excludeDiagonals: Bool) -> Int {
+        let line = [Int](repeating: 0, count: max.x)
+        var grid = [[Int]](repeating: line, count: max.y)
+
+        let drawVectors = excludeDiagonals ? vectors.filter { $0.diagonal } : vectors
+        for vector in drawVectors {
+            draw(vector, in: &grid)
+        }
+        // show(grid)
+
+        var sum = 0
+        for line in grid {
+            sum += line.reduce(0) { sum, x in
+                sum + (x > 1 ? 1 : 0)
+            }
+        }
+        return sum
     }
 }
