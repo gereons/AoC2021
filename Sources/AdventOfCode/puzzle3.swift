@@ -24,24 +24,27 @@ struct Puzzle3 {
         let data = readFile(named: "puzzle3.txt")
 
         let puzzle = Puzzle3()
-        let bitcounts = puzzle.bitcounts(for: data)
 
-        print("Solution for part 1: \(puzzle.part1(bitcounts, measurements: data.count))")
-        print("Solution for part 2: \(puzzle.part2(bitcounts, data: data))")
+        print("Solution for part 1: \(puzzle.part1(data))")
+        print("Solution for part 2: \(puzzle.part2(data))")
     }
 
     private func bitcounts(for data: [String]) -> [Int] {
         var bitcounts = [Int](repeating: 0, count: data[0].count)
         for str in data {
             for (index, digit) in str.enumerated() {
-                bitcounts[index] += digit == "1" ? 1 : 0
+                if digit == "1" {
+                    bitcounts[index] += 1
+                }
             }
         }
 
         return bitcounts
     }
 
-    func part1(_ bitcounts: [Int], measurements: Int) -> Int {
+    func part1(_ data: [String]) -> Int {
+        let bitcounts = self.bitcounts(for: data)
+        let measurements = data.count
         let timer = Timer(day: 3); defer { timer.show() }
         var gamma = ""
         var epsilon = ""
@@ -59,8 +62,9 @@ struct Puzzle3 {
         return Int(gamma, radix: 2)! * Int(epsilon, radix: 2)!
     }
 
-    func part2(_ bitcounts: [Int], data: [String]) -> Int {
+    func part2(_ data: [String]) -> Int {
         let timer = Timer(day: 3); defer { timer.show() }
+        let bitcounts = bitcounts(for: data)
         let oxygenRating = findRating(bitcounts, data: data, criterium: .mostCommon)
         let co2Rating = findRating(bitcounts, data: data, criterium: .leastCommon)
         return oxygenRating * co2Rating
