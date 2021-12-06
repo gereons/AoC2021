@@ -10,7 +10,9 @@ struct Puzzle6 {
         // let data = testData
         let data = readFile(named: "puzzle6.txt")
 
-        let initialPopulation = data[0].split(separator: ",").compactMap { Int(String($0)) }
+        let initialPopulation = Timer.time(day: 6) {
+            data[0].split(separator: ",").compactMap { Int(String($0)) }
+        }
 
         let puzzle = Puzzle6()
 

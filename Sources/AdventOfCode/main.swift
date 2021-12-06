@@ -9,6 +9,7 @@ let fixturePath = "Developer/AdventOfCode/AoC2021/Fixtures"
 //Puzzle4.run()
 //Puzzle5.run()
 Puzzle6.run()
+
 // Puzzle7.run()
 // Puzzle8.run()
 // Puzzle9.run()
@@ -42,7 +43,7 @@ public func readFile(named name: String) -> [String] {
         }
     }
     if let data = try? Data(contentsOf: url), let str = String(bytes: data, encoding: .utf8) {
-        return str.components(separatedBy: "\n").dropLast()
+        return str.split(separator: "\n", omittingEmptySubsequences: false).dropLast().map { String($0) }
     }
     print("OOPS: can't read \(url.absoluteURL)")
     return []
@@ -54,8 +55,14 @@ class Timer {
 
     private static var total: TimeInterval = 0
 
-    init(day: Int, fun: StaticString = #function) {
+    init(day: Int, fun: String = #function) {
         self.name = "Day \(day) \(fun)"
+    }
+
+    static func time<Result>(day: Int, name: String = "parse", closure: () -> Result) -> Result {
+        let timer = Timer(day: day, fun: name)
+        defer { timer.show() }
+        return closure()
     }
 
     func show() {

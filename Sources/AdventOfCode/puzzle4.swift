@@ -4,7 +4,7 @@ import Foundation
 // Solution for part 2: 23541
 
 struct Puzzle4 {
-    static let testData = [
+    private static let testData = [
          "7,4,9,5,11,17,23,2,0,14,21,24,10,16,13,6,15,25,12,22,18,20,8,19,3,26,1",
          "",
          "22 13 17 11  0",
@@ -36,7 +36,7 @@ struct Puzzle4 {
 
         init(from lines: [String]) {
             for line in lines {
-                let digits = line.components(separatedBy: " ")
+                let digits = line.split(separator: " ")
                     .compactMap { Int($0) }
                     .map { Entry(number: $0) }
                 entries.append(digits)
@@ -94,13 +94,12 @@ struct Puzzle4 {
         // let data = Self.testData
         let data = readFile(named: "puzzle4.txt")
 
-        let numbers = data[0].components(separatedBy: ",").compactMap { Int($0) }
-
-        var boards = [Board]()
-        for index in stride(from: 1, through: data.count-1, by: 6) {
-            let range = data[index+1..<index+6]
-            let board = Board(from: Array(range))
-            boards.append(board)
+        let (numbers, boards) = Timer.time(day: 4) { () -> ([Int], [Board]) in
+            let numbers = data[0].split(separator: ",").compactMap { Int($0) }
+            let boards = stride(from: 1, through: data.count-1, by: 6).map { index in
+                Board(from: Array(data[index+1..<index+6]))
+            }
+            return (numbers, boards)
         }
 
         let puzzle = Puzzle4()

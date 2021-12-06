@@ -45,14 +45,14 @@ struct Puzzle5 {
         // let data = Self.testData
         let data = readFile(named: "puzzle5.txt")
 
-        var vectors = [Vector]()
         var maxX = 0
         var maxY = 0
 
-        let regex = try! NSRegularExpression(pattern: #"(\d*),(\d*) -> (\d*),(\d*)"#, options: [])
-        for line in data {
-            let range = NSRange(location: 0, length: line.count)
-            if let match = regex.firstMatch(in: line, options: .anchored, range: range) {
+        let vectors = Timer.time(day: 5) { () -> [Vector] in
+            let regex = try! NSRegularExpression(pattern: #"(\d*),(\d*) -> (\d*),(\d*)"#, options: [])
+            return data.map { line -> Vector in
+                let range = NSRange(location: 0, length: line.count)
+                let match = regex.firstMatch(in: line, options: .anchored, range: range)!
                 let x1 = Int(line[Range(match.range(at: 1), in: line)!])!
                 let y1 = Int(line[Range(match.range(at: 2), in: line)!])!
                 let x2 = Int(line[Range(match.range(at: 3), in: line)!])!
@@ -63,15 +63,15 @@ struct Puzzle5 {
 
                 let p1 = Point(x: x1, y: y1)
                 let p2 = Point(x: x2, y: y2)
-                vectors.append(Vector(start: p1, end: p2))
+                return Vector(start: p1, end: p2)
             }
         }
 
         let puzzle = Puzzle5()
-        let max = Point(x: maxX + 1, y: maxY + 1)
+        let dim = Point(x: maxX + 1, y: maxY + 1)
 
-        print("Solution for part 1: \(puzzle.part1(vectors, max))")
-        print("Solution for part 2: \(puzzle.part2(vectors, max))")
+        print("Solution for part 1: \(puzzle.part1(vectors, dim))")
+        print("Solution for part 2: \(puzzle.part2(vectors, dim))")
     }
 
     private func draw(_ vector: Vector, in grid: inout [[Int]]) {

@@ -4,16 +4,20 @@ import Foundation
 // Solution for part 2: 1571
 
 struct Puzzle1 {
-    static let testData = [ 199, 200, 208, 210, 200, 207, 240, 269, 260, 263 ]
+    static let testData = [ "199", "200", "208", "210", "200", "207", "240", "269", "260", "263" ]
 
     static func run() {
         // let data = Self.testData
-        let data = readFile(named: "puzzle1.txt").compactMap { Int($0) }
+        let data = readFile(named: "puzzle1.txt")
+
+        let sonarData = Timer.time(day: 1) {
+            data.compactMap { Int($0) }
+        }
 
         let puzzle = Puzzle1()
 
-        print("Solution for part 1: \(puzzle.part1(data))")
-        print("Solution for part 2: \(puzzle.part2(data))")
+        print("Solution for part 1: \(puzzle.part1(sonarData))")
+        print("Solution for part 2: \(puzzle.part2(sonarData))")
     }
 
     private func part1(_ data: [Int]) -> Int {

@@ -19,7 +19,7 @@ struct Puzzle2 {
         case up(Int)
 
         init(from str: String) {
-            let components = str.components(separatedBy: " ")
+            let components = str.split(separator: " ")
             let speed = Int(components[1])!
 
             switch components[0] {
@@ -33,7 +33,11 @@ struct Puzzle2 {
 
     static func run() {
         // let data = Self.testData
-        let commands = readFile(named: "puzzle2.txt").map { Command(from: $0) }
+        let data = readFile(named: "puzzle2.txt")
+
+        let commands = Timer.time(day: 2) {
+            data.map { Command(from: $0) }
+        }
 
         let puzzle = Puzzle2()
 
