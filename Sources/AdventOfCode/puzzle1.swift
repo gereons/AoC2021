@@ -7,7 +7,7 @@ struct Puzzle1 {
     static let testData = [ "199", "200", "208", "210", "200", "207", "240", "269", "260", "263" ]
 
     static func run() {
-        // let data = Self.testData
+        // let data = testData
         let data = readFile(named: "puzzle1.txt")
 
         let sonarData = Timer.time(day: 1) {

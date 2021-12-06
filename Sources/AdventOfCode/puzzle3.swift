@@ -20,7 +20,7 @@ struct Puzzle3 {
     ]
 
     static func run() {
-        // let data = Self.testData
+        // let data = testData
         let data = readFile(named: "puzzle3.txt")
 
         let puzzle = Puzzle3()

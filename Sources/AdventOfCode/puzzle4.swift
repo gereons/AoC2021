@@ -91,7 +91,7 @@ struct Puzzle4 {
     }
 
     static func run() {
-        // let data = Self.testData
+        // let data = testData
         let data = readFile(named: "puzzle4.txt")
 
         let (numbers, boards) = Timer.time(day: 4) { () -> ([Int], [Board]) in

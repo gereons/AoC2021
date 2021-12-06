@@ -42,7 +42,7 @@ struct Puzzle5 {
     }
 
     static func run() {
-        // let data = Self.testData
+        // let data = testData
         let data = readFile(named: "puzzle5.txt")
 
         var maxX = 0

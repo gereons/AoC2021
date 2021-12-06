@@ -31,27 +31,25 @@ struct Puzzle6 {
     }
 
     private func growFish(from initialPopulation: [Int], days: Int) -> Int {
-        // index: age, content: count of fish with that age
-        var today = [Int](repeating: 0, count: 9)
+        // index: age, value: count of fish with that age
+        var school = [Int](repeating: 0, count: 9)
         for age in initialPopulation {
-            today[age] += 1
+            school[age] += 1
         }
 
         for _ in 0..<days {
-            var tomorrow = [Int](repeating: 0, count: 9)
-
-            for (age, count) in today.enumerated() {
-                if age == 0 {
-                    tomorrow[8] += count
-                    tomorrow[6] += count
-                } else {
-                    tomorrow[age - 1] += count
-                }
-            }
-
-            today = tomorrow
+            let new = school[0]
+            school[0] = school[1]
+            school[1] = school[2]
+            school[2] = school[3]
+            school[3] = school[4]
+            school[4] = school[5]
+            school[5] = school[6]
+            school[6] = school[7] + new
+            school[7] = school[8]
+            school[8] = new
         }
 
-        return today.reduce(0, +)
+        return school.reduce(0, +)
     }
 }
