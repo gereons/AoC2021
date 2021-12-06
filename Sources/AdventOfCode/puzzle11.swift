@@ -1,7 +1,7 @@
 import Foundation
 
 struct Puzzle11 {
-    let testData = [ "" ]
+    static let testData = [ "" ]
 
     static func run() {
         let data = readFile(named: "puzzle11.txt")
