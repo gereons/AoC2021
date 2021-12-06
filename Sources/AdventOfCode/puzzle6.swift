@@ -52,8 +52,6 @@ struct Puzzle6 {
             today = tomorrow
         }
 
-        return today.reduce(0) { sum, count in
-            sum + count
-        }
+        return today.reduce(0, +)
     }
 }
