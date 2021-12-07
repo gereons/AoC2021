@@ -33,10 +33,10 @@ struct Puzzle7 {
         // cost: 1,2,3,4,... increasing by distance
         let cost = { n in n * (n + 1) / 2 }
 
-        let avg = positions.reduce(0, +) / positions.count
+        let avg = Float(positions.reduce(0, +)) / Float(positions.count)
 
-        let fuel1 = fuelConsumption(from: positions, to: avg, cost: cost)
-        let fuel2 = fuelConsumption(from: positions, to: avg + 1, cost: cost)
+        let fuel1 = fuelConsumption(from: positions, to: Int(floor(avg)), cost: cost)
+        let fuel2 = fuelConsumption(from: positions, to: Int(ceil(avg)), cost: cost)
 
         return min(fuel1, fuel2)
     }
