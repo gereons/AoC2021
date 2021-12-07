@@ -22,26 +22,38 @@ struct Puzzle7 {
 
     private func part1(_ positions: [Int]) -> Int {
         let timer = Timer(day: 7); defer { timer.show() }
+        let positions = positions.sorted(by: <)
+        let target = median(positions)
         // cost: 1 fuel per distance
-        return minimumFuel(positions, cost: { $0 })
+        return fuelConsumption(from: positions, to: target, cost: { $0 })
     }
 
     private func part2(_ positions: [Int]) -> Int {
         let timer = Timer(day: 7); defer { timer.show() }
         // cost: 1,2,3,4,... increasing by distance
-        return minimumFuel(positions, cost: { $0 * ($0+1) / 2})
+        let cost = { n in n * (n + 1) / 2 }
+
+        let avg = positions.reduce(0, +) / positions.count
+
+        let fuel1 = fuelConsumption(from: positions, to: avg, cost: cost)
+        let fuel2 = fuelConsumption(from: positions, to: avg + 1, cost: cost)
+
+        return min(fuel1, fuel2)
     }
 
-    private func minimumFuel(_ positions: [Int], cost: (Int)->Int) -> Int {
-        var minFuel = Int.max
-        for target in positions {
-            var fuel = 0
-            for position in positions {
-                fuel += cost(abs(target - position))
-            }
-            minFuel = Swift.min(minFuel, fuel)
+    private func fuelConsumption(from positions: [Int], to target: Int, cost: (Int)->Int) -> Int {
+        return positions.reduce(0) { sum, position in
+            sum + cost(abs(target - position))
         }
+    }
 
-        return minFuel
+    private func median(_ values: [Int]) -> Int {
+        if values.count.isMultiple(of: 2) {
+            let v1 = values[values.count / 2]
+            let v2 = values[values.count / 2 - 1]
+            return (v1 + v2) / 2
+        } else {
+            return values[values.count / 2]
+        }
     }
 }
