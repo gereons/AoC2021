@@ -1,6 +1,7 @@
+import Algorithms
 
-// Solution for part 2: 1074888
 // Solution for part 1: 548
+// Solution for part 2: 1074888
 
 struct Entry {
     let inputs: [String]
@@ -75,6 +76,7 @@ struct Puzzle8 {
 
     private func decode(_ entry: Entry) -> Int {
         var digits = [String: Int]()
+        var found = [Bool](repeating: false, count: 10)
 
         // find the unique entries
         let one = entry.inputs[0]
@@ -90,24 +92,30 @@ struct Puzzle8 {
         // find the 5-segment digits (3/5/2)
         let digit5 = entry.inputs[3...5]
         digit5.forEach { str in
-            if str.containsAll(one) {
+            if !found[3] && str.containsAll(one) {
                 digits[str] = 3
-            } else if str.containsAllButOne(four) {
+                found[3] = true
+            } else if !found[5] && str.containsAllButOne(four) {
                 digits[str] = 5
-            } else {
+                found[5] = true
+            } else if !found[2] {
                 digits[str] = 2
+                found[2] = true
             }
         }
 
         // find the 6-segment digits (9/0/6)
         let digit6 = entry.inputs[6...8]
         digit6.forEach { str in
-            if str.containsAll("\(four)\(seven)") {
+            if !found[9] && str.containsAll("\(four)\(seven)") {
                 digits[str] = 9
-            } else if str.containsAll(one) {
+                found[9] = true
+            } else if !found[0] && str.containsAll(one) {
                 digits[str] = 0
-            } else {
+                found[0] = true
+            } else if !found[6] {
                 digits[str] = 6
+                found[6] = true
             }
         }
         assert(digits.count == 10)
@@ -123,21 +131,14 @@ struct Puzzle8 {
 private extension String {
     func containsAll(_ string: String) -> Bool {
         let lookupChars = Set(string.map { $0 })
-        let chars = Set(self.map { $0 })
-
-        let union = chars.union(lookupChars)
-        return union.count == chars.count
+        return lookupChars.isSubset(of: self)
     }
 
     func containsAllButOne(_ string: String) -> Bool {
-        for index in 0..<string.count {
-            var str = string
-            str.remove(at: string.index(startIndex, offsetBy: index))
-            if self.containsAll(str) {
-                return true
-            }
-        }
+        let lookupChars = Set(string.map { $0 })
+        let chars = Set(self.map { $0 })
 
-        return false
+        let union = chars.union(lookupChars)
+        return union.count == chars.count + 1
     }
 }
