@@ -89,13 +89,17 @@ struct Puzzle8 {
         digits[four] = 4
         digits[eight] = 8
 
+        var fourcorner = four
+        fourcorner.removeAll { $0 == one.first }
+        fourcorner.removeAll { $0 == one.last }
+
         // find the 5-segment digits (3/5/2)
         let digit5 = entry.inputs[3...5]
         digit5.forEach { str in
             if !found[3] && str.containsAll(one) {
                 digits[str] = 3
                 found[3] = true
-            } else if !found[5] && str.containsAllButOne(four) {
+            } else if !found[5] && str.containsAll(fourcorner) {
                 digits[str] = 5
                 found[5] = true
             } else if !found[2] {
@@ -132,13 +136,5 @@ private extension String {
     func containsAll(_ string: String) -> Bool {
         let lookupChars = Set(string.map { $0 })
         return lookupChars.isSubset(of: self)
-    }
-
-    func containsAllButOne(_ string: String) -> Bool {
-        let lookupChars = Set(string.map { $0 })
-        let chars = Set(self.map { $0 })
-
-        let union = chars.union(lookupChars)
-        return union.count == chars.count + 1
     }
 }
