@@ -63,6 +63,9 @@ struct Puzzle9 {
             for x in 0..<depthMap.maxX {
                 let point = Point(x: x, y: y)
                 let depth = depthMap.depthAt(point)
+                if depth == 9 {
+                    continue
+                }
                 var minNeighborDepth = Int.max
                 for neighbor in depthMap.neighbors(for: point) {
                     let nd = depthMap.depthAt(neighbor)
