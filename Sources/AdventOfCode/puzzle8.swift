@@ -1,5 +1,3 @@
-import Algorithms
-
 // Solution for part 1: 548
 // Solution for part 2: 1074888
 

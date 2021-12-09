@@ -17,19 +17,16 @@ struct Puzzle9 {
 
         func neighbors(for point: Point) -> [Point] {
             var result = [Point]()
+            let offsets = [(-1, 0), (1, 0), (0, -1), (0, 1)]
 
-            for xoffset in stride(from: -1, through: 1, by: 2) {
-                let nx = point.x+xoffset
-                if nx >= 0 && nx < maxX {
-                    result.append(Point(x: nx, y: point.y))
+            for offset in offsets {
+                let nx = point.x + offset.0
+                let ny = point.y + offset.1
+                if nx >= 0 && nx < maxX && ny >= 0 && ny < maxY {
+                    result.append(Point(x: nx, y: ny))
                 }
             }
-            for yoffset in stride(from: -1, through: 1, by: 2) {
-                let ny = point.y+yoffset
-                if ny >= 0 && ny < maxY {
-                    result.append(Point(x: point.x, y: ny))
-                }
-            }
+
             return result
         }
     }
@@ -66,12 +63,12 @@ struct Puzzle9 {
             for x in 0..<depthMap.maxX {
                 let point = Point(x: x, y: y)
                 let depth = depthMap.depthAt(point)
-                var surroundings = [Int]()
+                var minNeighborDepth = Int.max
                 for neighbor in depthMap.neighbors(for: point) {
-                    surroundings.append(depthMap.depthAt(neighbor))
+                    let nd = depthMap.depthAt(neighbor)
+                    minNeighborDepth = min(minNeighborDepth, nd)
                 }
-                let min = surroundings.min(by: <)!
-                if depth < min {
+                if depth < minNeighborDepth {
                     lowPoints.append(point)
                     riskLevel += depth + 1
                 }
@@ -99,13 +96,13 @@ struct Puzzle9 {
         return visited.count
     }
 
-    private func findBasinSize(in depthMap: DepthMap, at origin: Point, _ visited: inout Set<Point>) {
-        if visited.contains(origin) {
+    private func findBasinSize(in depthMap: DepthMap, at point: Point, _ visited: inout Set<Point>) {
+        if visited.contains(point) {
             return
         }
 
-        visited.insert(origin)
-        for neighbor in depthMap.neighbors(for: origin) {
+        visited.insert(point)
+        for neighbor in depthMap.neighbors(for: point) {
             if depthMap.depthAt(neighbor) == 9 {
                 continue
             }
