@@ -122,7 +122,7 @@ struct Puzzle11 {
         let data = readFile(named: "puzzle11.txt")
 
         let puzzle = Puzzle11()
-        let grid = Timer.time(day: 10) {
+        let grid = Timer.time(day: 11) {
             Grid(data: data.map { line in
                 line.compactMap { Int(String($0)) }
             })
@@ -133,7 +133,7 @@ struct Puzzle11 {
     }
 
     private func part1(_ grid: Grid) -> Int {
-        let timer = Timer(day: 10); defer { timer.show() }
+        let timer = Timer(day: 11); defer { timer.show() }
         for _ in 0 ..< 100 {
             let flashes = grid.increaseBrightness()
             grid.propagateFlashes(flashes)
@@ -143,7 +143,7 @@ struct Puzzle11 {
     }
 
     private func part2(_ grid: Grid) -> Int {
-        let timer = Timer(day: 10); defer { timer.show() }
+        let timer = Timer(day: 11); defer { timer.show() }
         for step in 0..<Int.max {
             let flashes = grid.increaseBrightness()
             grid.propagateFlashes(flashes)
