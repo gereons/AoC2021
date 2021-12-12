@@ -1,16 +1,18 @@
 import Foundation
 
 struct Puzzle12 {
-    static let testData = [
+    static let testData1 = [
         // start example -> 10 / 36
-//        "start-A",
-//        "start-b",
-//        "A-c",
-//        "A-b",
-//        "b-d",
-//        "A-end",
-//        "b-end"
+        "start-A",
+        "start-b",
+        "A-c",
+        "A-b",
+        "b-d",
+        "A-end",
+        "b-end"
+    ]
 
+    static let testData2 = [
         // slightly larger example -> 19 / 103
         "dc-end",
         "HN-start",
@@ -22,7 +24,9 @@ struct Puzzle12 {
         "kj-sa",
         "kj-HN",
         "kj-dc"
+    ]
 
+    static let testData3 = [
         // even larger example -> 226 / 3509
         "fs-end",
         "he-DX",
@@ -41,7 +45,7 @@ struct Puzzle12 {
         "he-WI",
         "zg-he",
         "pj-fs",
-        "start-RW",
+        "start-RW"
     ]
 
     struct Cave: Hashable {
@@ -71,8 +75,8 @@ struct Puzzle12 {
     }
 
     static func run() {
-        let data = testData
-        // let data = readFile(named: "puzzle12.txt")
+        // let data = testData3
+        let data = readFile(named: "puzzle12.txt")
 
         let paths = Timer.time(day: 12) { () -> [Path] in
             var paths = [Path]()
@@ -90,7 +94,7 @@ struct Puzzle12 {
         let puzzle = Puzzle12()
 
         print("Solution for part 1: \(puzzle.part1(paths))")
-        // print("Solution for part 2: \(puzzle.part2(paths))")
+        print("Solution for part 2: \(puzzle.part2(paths))")
     }
 
     private func part1(_ paths: [Path]) -> Int {
@@ -102,31 +106,56 @@ struct Puzzle12 {
         return dfs.simplePaths.count
     }
 
-    private func part2(_ data: [String]) -> Int {
+    private func part2(_ paths: [Path]) -> Int {
         let timer = Timer(day: 12); defer { timer.show() }
-        return 42
+
+        var allCaves = Set(paths.flatMap { [$0.from, $0.to ] })
+        let start = allCaves.first { $0.name == "start" }!
+        let end = allCaves.first { $0.name == "end" }!
+        allCaves.remove(start)
+        allCaves.remove(end)
+        let smallCaves = allCaves.filter { $0.isSmall }
+
+        var resultPaths = Set<[Cave]>()
+        smallCaves.forEach {
+            let dfs = DFS(paths: paths, allowTwoVisits: $0)
+            dfs.findAll(from: start, to: end)
+            resultPaths.formUnion(dfs.simplePaths)
+        }
+
+        return resultPaths.count
     }
 
     class DFS {
-        var visited = [Cave: Bool]()
-        var currentPath = [Cave]()
-        var simplePaths = [[Cave]]()
-        var paths: [Path]
+        private var visited = [Cave: Int]()
+        private var currentPath = [Cave]()
+        private(set) var simplePaths = [[Cave]]()
+        private let paths: [Path]
+        private var allowTwoVisits: Cave?
 
-        init(paths: [Path]) {
+        init(paths: [Path], allowTwoVisits: Cave? = nil) {
             self.paths = paths
+            self.allowTwoVisits = allowTwoVisits
+        }
+
+        private func visited(_ cave: Cave) -> Bool {
+            if cave == allowTwoVisits {
+                return cave.isSmall && visited[cave, default: 0] > 1
+            } else {
+                return cave.isSmall && visited[cave] == 1
+            }
         }
 
         func findAll(from: Cave, to: Cave) {
-            if from.isSmall && visited[from] == true {
+            if visited(from) {
                 return
             }
 
-            visited[from] = true
+            visited[from, default: 0] += 1
             currentPath.append(from)
             if from == to {
                 simplePaths.append(currentPath)
-                visited[from] = false
+                visited[from]! -= -1
                 currentPath.removeLast()
                 return
             }
@@ -134,7 +163,7 @@ struct Puzzle12 {
                 findAll(from: next.to, to: to)
             }
             currentPath.removeLast()
-            visited[from] = false
+            visited[from]! -= 1
         }
     }
 

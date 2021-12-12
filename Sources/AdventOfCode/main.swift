@@ -53,6 +53,12 @@ class Timer {
     private let name: String
 
     private static var total: TimeInterval = 0
+    private static let formatter: NumberFormatter = {
+        let fmt = NumberFormatter()
+        fmt.locale = Locale(identifier: "en_US")
+        fmt.maximumFractionDigits = 3
+        return fmt
+    }()
 
     init(day: Int, fun: String = #function) {
         self.name = "Day \(day) \(fun)"
@@ -67,10 +73,14 @@ class Timer {
     func show() {
         let elapsed = Date().timeIntervalSinceReferenceDate - start
         Self.total += elapsed
-        print("\(name) took \(elapsed)s")
+        print("\(name) took \(Self.format(elapsed))ms")
     }
 
     static func showTotal() {
-        print("Total time: \(Self.total)s")
+        print("Total time: \(format(Self.total))ms")
+    }
+
+    private static func format(_ time: TimeInterval) -> String {
+        formatter.string(for: time * 1000)!
     }
 }
