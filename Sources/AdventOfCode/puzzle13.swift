@@ -65,7 +65,7 @@ struct Puzzle13 {
         }
 
         private func foldUp(at yFold: Int) {
-            let points = points.filter { $0.x <= maxX && $0.y <= maxY }
+            let points = points.filter { $0.x <= maxX && $0.y <= maxY && $0.y > yFold }
             points.forEach {
                 let yFolded = abs($0.y - (2 * yFold))
                 self.points.insert(Point(x: $0.x, y: yFolded))
@@ -75,7 +75,7 @@ struct Puzzle13 {
         }
 
         private func foldLeft(at xFold: Int) {
-            let points = points.filter { $0.x <= maxX && $0.y <= maxY }
+            let points = points.filter { $0.x <= maxX && $0.y <= maxY && $0.x > xFold }
             points.forEach {
                 let xFolded = abs($0.x - (2 * xFold))
                 self.points.insert(Point(x: xFolded, y: $0.y))
