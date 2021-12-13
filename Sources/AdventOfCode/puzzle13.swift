@@ -25,7 +25,7 @@ struct Puzzle13 {
         "fold along x=5"
     ]
 
-    struct Point {
+    struct Point: Hashable {
         let x, y: Int
     }
 
@@ -35,25 +35,20 @@ struct Puzzle13 {
     }
 
     class Grid {
-        private var points = [[Bool]]()
+        private var points: Set<Point>
         private(set) var maxX: Int
         private(set) var maxY: Int
 
         init(points: [Point], maxX: Int, maxY: Int) {
             self.maxX = maxX
             self.maxY = maxY
-            let line = [Bool](repeating: false, count: maxX+1)
-            self.points = [[Bool]](repeating: line, count: maxY+1)
-
-            points.forEach {
-                self.points[$0.y][$0.x] = true
-            }
+            self.points = Set(points)
         }
 
         func show() {
             for y in 0...maxY {
                 for x in 0...maxX {
-                    let ch = points[y][x] ? "#" : "."
+                    let ch = points.contains(Point(x: x, y: y)) ? "#" : " "
                     print(ch, terminator: "")
                 }
                 print()
@@ -69,37 +64,28 @@ struct Puzzle13 {
             }
         }
 
-        private func foldUp(at y: Int) {
-            var destY = 0
-            for y in (y+1...maxY).reversed() {
-                for x in 0...maxX {
-                    points[destY][x] = points[destY][x] || points[y][x]
-                }
-                destY += 1
+        private func foldUp(at yFold: Int) {
+            let points = points.filter { $0.x <= maxX && $0.y <= maxY }
+            points.forEach {
+                let yFolded = abs($0.y - (2 * yFold))
+                self.points.insert(Point(x: $0.x, y: yFolded))
             }
 
-            maxY = y - 1
+            maxY = yFold - 1
         }
 
-        private func foldLeft(at x: Int) {
-            for y in 0...maxY {
-                var destX = 0
-                for x in (x+1...maxX).reversed() {
-                    points[y][destX] = points[y][destX] || points[y][x]
-                    destX += 1
-                }
+        private func foldLeft(at xFold: Int) {
+            let points = points.filter { $0.x <= maxX && $0.y <= maxY }
+            points.forEach {
+                let xFolded = abs($0.x - (2 * xFold))
+                self.points.insert(Point(x: xFolded, y: $0.y))
             }
-            maxX = x - 1
+
+            maxX = xFold - 1
         }
 
         var visibleDots: Int {
-            var sum = 0
-            for y in 0...maxY {
-                for x in 0...maxX {
-                    sum += points[y][x] ? 1 : 0
-                }
-            }
-            return sum
+            return points.filter { $0.x <= maxX && $0.y <= maxY }.count
         }
     }
 
@@ -138,8 +124,7 @@ struct Puzzle13 {
 
         print("Solution for part 1: \(puzzle.part1and2(grid, folds))")
         print("Solution for part 2:")
-        grid.show()
-        // print("Solution for part 2: \(puzzle.part2(grid, folds))")
+        grid.show() // LRGPRECB
     }
 
     private func part1and2(_ grid: Grid, _ folds: [Fold]) -> Int {
@@ -151,9 +136,6 @@ struct Puzzle13 {
             if dots == -1 { dots = grid.visibleDots }
         }
 
-        // grid.show()
-        // LRGPRECB
-        
         return dots
     }
 }
