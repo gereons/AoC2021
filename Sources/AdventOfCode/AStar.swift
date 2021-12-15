@@ -1,6 +1,9 @@
 //
-//  astar.swift
-//  
+//  AStar.swift
+//
+//  based on
+//  https://www.raywenderlich.com/3011-how-to-implement-a-pathfinding-with-cocos2d-tutorial
+//
 
 protocol Coordinate: Hashable {
     var x: Int { get }
@@ -61,7 +64,8 @@ final class AStarPathfinder {
         openSteps.sort { $0.fScore <= $1.fScore }
     }
 
-    func hScore<P: Coordinate>(from fromPoint: P, to toPoint: P) -> Int {
+    // manhattan distance
+    private func hScore<P: Coordinate>(from fromPoint: P, to toPoint: P) -> Int {
         abs(toPoint.y - fromPoint.y) + abs(toPoint.x - fromPoint.x)
     }
 
