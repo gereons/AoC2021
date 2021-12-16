@@ -72,6 +72,44 @@ struct Puzzle16 {
                 }
             }
         }
+
+        func eval() -> Int {
+            switch self.content {
+            case .value(let value):
+                return value
+            case .packets(let packets):
+                switch self.header.type {
+                case 0: // sum
+                    return packets.reduce(0) { sum, p in
+                        sum + p.eval()
+                    }
+                case 1: // product
+                    return packets.reduce(1) { sum, p in
+                        sum * p.eval()
+                    }
+                case 2: // min
+                    var minP = Int.max
+                    packets.forEach() {
+                        minP = min(minP, $0.eval())
+                    }
+                    return minP
+                case 3: // max
+                    var maxP = 0
+                    packets.forEach() {
+                        maxP = max(maxP, $0.eval())
+                    }
+                    return maxP
+                case 5: // greater
+                    return packets[0].eval() > packets[1].eval() ? 1 : 0
+                case 6: // less
+                    return packets[0].eval() < packets[1].eval() ? 1 : 0
+                case 7: // eq
+                    return packets[0].eval() == packets[1].eval() ? 1 : 0
+                default:
+                    fatalError()
+                }
+            }
+        }
     }
 
     class Bits {
@@ -130,35 +168,32 @@ struct Puzzle16 {
         // "D2FE28"
         // "38006F45291200"
         // "EE00D40C823060"
-        "A0016C880162017C3686B18A3D4780"
+        // "A0016C880162017C3686B18A3D4780"
+        "9C0141080250320F1802104A08"
     ]
 
     static func run() {
         // let data = testData
         let data = readFile(named: "puzzle16.txt")
 
-        let bits = Timer.time(day: 16) { () -> Bits in
-            Bits(decodeToBits(data[0]))
+        let packet = Timer.time(day: 16) { () -> Packet in
+            let bits = Bits(decodeToBits(data[0]))
+            return Packet.create(from: bits)
         }
         let puzzle = Puzzle16()
 
-        let p = Packet.create(from: bits)
-
-//        print(p)
-        print(p.versionSum())
-
-        print("Solution for part 1: \(puzzle.part1(data))")
-        print("Solution for part 2: \(puzzle.part2(data))")
+        print("Solution for part 1: \(puzzle.part1(packet))")
+        print("Solution for part 2: \(puzzle.part2(packet))")
     }
 
-    private func part1(_ data: [String]) -> Int {
+    private func part1(_ packet: Packet) -> Int {
         let timer = Timer(day: 16); defer { timer.show() }
-        return 42
+        return packet.versionSum()
     }
 
-    private func part2(_ data: [String]) -> Int {
+    private func part2(_ packet: Packet) -> Int {
         let timer = Timer(day: 16); defer { timer.show() }
-        return 42
+        return packet.eval()
     }
 
     private static func decodeToBits(_ str: String) -> [UInt8] {
