@@ -19,7 +19,7 @@ protocol Pathfinding {
 
 // MARK: - implementation
 
-private class PathStep<C: Coordinate>: Hashable, CustomDebugStringConvertible {
+private final class PathStep<C: Coordinate>: Hashable, CustomDebugStringConvertible {
     let point: C
     var parent: PathStep?
 
