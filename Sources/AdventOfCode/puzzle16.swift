@@ -1,9 +1,5 @@
 import Foundation
 
-private extension Array where Element == UInt8 {
-
-}
-
 struct Puzzle16 {
     struct Header {
         let version: Int
@@ -20,9 +16,33 @@ struct Puzzle16 {
         let content: Content
 
         static func create(from bits: Bits) -> Packet {
-            let packets = getPackets(from: bits)
-            assert(packets.count == 1)
-            return packets[0]
+            return getPacket(from: bits)
+        }
+
+        private static func getPacket(from bits: Bits) -> Packet {
+            let header = Header(version: bits.get(3), type: bits.get(3))
+            if header.type == 4 {
+                let content = Content.value(bits.readValue())
+                return Packet(header: header, content: content)
+            } else {
+                let lengthType = bits.get(1)
+                switch lengthType {
+                case 0:
+                    let bitLength = bits.get(15) // no. of bits for sub-packets
+                    let subSet = bits.subSet(length: bitLength)
+                    let subPackets = getPackets(from: subSet)
+                    return Packet(header: header, content: .packets(subPackets))
+                case 1:
+                    let numberOfSubpackets = bits.get(11) // no. of sub-packets
+                    var subPackets = [Packet]()
+                    for _ in 0 ..< numberOfSubpackets {
+                        subPackets.append(getPacket(from: bits))
+                    }
+                    return Packet(header: header, content: .packets(subPackets))
+                default:
+                    fatalError()
+                }
+            }
         }
 
         private static func getPackets(from bits: Bits) -> [Packet] {
@@ -31,35 +51,6 @@ struct Puzzle16 {
                 result.append(getPacket(from: bits))
             }
             return result
-        }
-
-        private static func getPacket(from bits: Bits) -> Packet {
-            let header = Header(version: bits.get(3), type: bits.get(3))
-            if header.type == 4 {
-                let content = Content.value(bits.readValue())
-                let p = Packet(header: header, content: content)
-                return p
-            } else {
-                let lengthType = bits.get(1)
-                switch lengthType {
-                case 0:
-                    let bitLength = bits.get(15) // no. of bits for sub-packets
-                    let subStream = bits.subStream(length: bitLength)
-                    let subPackets = getPackets(from: subStream)
-                    let p = Packet(header: header, content: .packets(subPackets))
-                    return p
-                case 1:
-                    let numberOfSubpackets = bits.get(11) // no. of sub-packets
-                    var subPackets = [Packet]()
-                    for _ in 0 ..< numberOfSubpackets {
-                        subPackets.append(getPacket(from: bits))
-                    }
-                    let p = Packet(header: header, content: .packets(subPackets))
-                    return p
-                default:
-                    fatalError()
-                }
-            }
         }
 
         func versionSum() -> Int {
@@ -112,28 +103,13 @@ struct Puzzle16 {
         }
     }
 
-    class Bits {
+    final class Bits {
         let bits: [UInt8]
 
         private var index = 0
 
         init(_ bits: [UInt8]) {
             self.bits = bits
-        }
-
-        func getRaw(_ n: Int) -> [UInt8] {
-            let val = bits[index ..< index+n]
-            index += n
-            return Array(val)
-        }
-
-        private func intValue(_ bits: [UInt8]) -> Int {
-            var value = 0
-            bits.forEach {
-                value <<= 1
-                value |= Int($0)
-            }
-            return value
         }
 
         func get(_ n: Int) -> Int {
@@ -152,15 +128,31 @@ struct Puzzle16 {
             return value
         }
 
-        func subStream(length: Int) -> Bits {
+        func subSet(length: Int) -> Bits {
             let subBits = bits[index ..< index+length]
             index += length
             return Bits(Array(subBits))
         }
 
+        // are there enough bits remaining for at least one packet?
         var packetAvailable: Bool {
             let minPacketSize = 3 + 3 + 5
             return index + minPacketSize <= bits.count
+        }
+
+        private func getRaw(_ n: Int) -> [UInt8] {
+            let val = bits[index ..< index+n]
+            index += n
+            return Array(val)
+        }
+
+        private func intValue(_ bits: [UInt8]) -> Int {
+            var value = 0
+            bits.forEach {
+                value <<= 1
+                value |= Int($0)
+            }
+            return value
         }
     }
 
@@ -197,28 +189,29 @@ struct Puzzle16 {
     }
 
     private static func decodeToBits(_ str: String) -> [UInt8] {
+        let bitmap: [Character: [UInt8]] = [
+            "0": [0,0,0,0],
+            "1": [0,0,0,1],
+            "2": [0,0,1,0],
+            "3": [0,0,1,1],
+            "4": [0,1,0,0],
+            "5": [0,1,0,1],
+            "6": [0,1,1,0],
+            "7": [0,1,1,1],
+            "8": [1,0,0,0],
+            "9": [1,0,0,1],
+            "A": [1,0,1,0],
+            "B": [1,0,1,1],
+            "C": [1,1,0,0],
+            "D": [1,1,0,1],
+            "E": [1,1,1,0],
+            "F": [1,1,1,1]
+        ]
         var bits = [UInt8]()
         for d in str.map({ $0 }) {
-            switch d {
-            case "0": bits.append(contentsOf: [0,0,0,0])
-            case "1": bits.append(contentsOf: [0,0,0,1])
-            case "2": bits.append(contentsOf: [0,0,1,0])
-            case "3": bits.append(contentsOf: [0,0,1,1])
-            case "4": bits.append(contentsOf: [0,1,0,0])
-            case "5": bits.append(contentsOf: [0,1,0,1])
-            case "6": bits.append(contentsOf: [0,1,1,0])
-            case "7": bits.append(contentsOf: [0,1,1,1])
-            case "8": bits.append(contentsOf: [1,0,0,0])
-            case "9": bits.append(contentsOf: [1,0,0,1])
-            case "A": bits.append(contentsOf: [1,0,1,0])
-            case "B": bits.append(contentsOf: [1,0,1,1])
-            case "C": bits.append(contentsOf: [1,1,0,0])
-            case "D": bits.append(contentsOf: [1,1,0,1])
-            case "E": bits.append(contentsOf: [1,1,1,0])
-            case "F": bits.append(contentsOf: [1,1,1,1])
-            default: fatalError()
-            }
+            bits.append(contentsOf: bitmap[d] ?? [])
         }
+
         return bits
     }
 }
