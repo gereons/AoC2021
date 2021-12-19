@@ -13,10 +13,12 @@ struct Puzzle22 {
     }
 
     private func part1(_ data: [String]) -> Int {
+        let timer = Timer(day: 22); defer { timer.show() }
         return 42
     }
 
     private func part2(_ data: [String]) -> Int {
+        let timer = Timer(day: 22); defer { timer.show() }
         return 42
     }
 }
