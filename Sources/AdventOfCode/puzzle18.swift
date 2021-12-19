@@ -4,16 +4,20 @@ struct Puzzle18 {
     static func run() {
         let data = readFile(named: "puzzle18.txt")
 
+        let nodes = Timer.time(day: 18) {
+            data.map {
+                Parser.createNode(from: $0)
+            }
+        }
+
         let puzzle = Puzzle18()
-        print("Solution for part 1: \(puzzle.part1(data))")
-        print("Solution for part 2: \(puzzle.part2(data))")
+        print("Solution for part 1: \(puzzle.part1(nodes))")
+        print("Solution for part 2: \(puzzle.part2(nodes))")
     }
 
-    private func part1(_ lines: [String]) -> Int {
+    private func part1(_ nodes: [Node]) -> Int {
         let timer = Timer(day: 18); defer { timer.show() }
-        let nodes = lines.map {
-            Parser.createNode(from: $0)
-        }
+
         var result = Node.add(nodes[0], nodes[1])
         result.reduce()
         for index in 2 ..< nodes.count {
@@ -23,15 +27,13 @@ struct Puzzle18 {
         return result.magnitude()
     }
 
-    private func part2(_ lines: [String]) -> Int {
+    private func part2(_ nodes: [Node]) -> Int {
         let timer = Timer(day: 18); defer { timer.show() }
         var maxMagnitude = 0
-        for i in 0..<lines.count {
-            for j in 0..<lines.count {
+        for i in 0..<nodes.count {
+            for j in 0..<nodes.count {
                 if i == j { continue }
-                let n1 = Parser.createNode(from: lines[i])
-                let n2 = Parser.createNode(from: lines[j])
-                let n = Node.add(n1, n2)
+                let n = Node.add(nodes[i], nodes[j])
                 n.reduce()
                 maxMagnitude = max(maxMagnitude, n.magnitude())
             }
@@ -56,8 +58,16 @@ extension Puzzle18 {
             self.right = right
         }
 
+        // recursively copy the tree
+        func copy() -> Node {
+            if let left = left, let right = right {
+                return Node(left: left.copy(), right: right.copy())
+            }
+            return Node(value: value)
+        }
+
         static func add(_ n1: Node, _ n2: Node) -> Node {
-            Node(left: n1, right: n2)
+            Node(left: n1.copy(), right: n2.copy())
         }
 
         func magnitude() -> Int {
