@@ -3,8 +3,8 @@
 DAY=$1
 
 if [ -z "$DAY" ]; then
-    echo "usage: $0 DAY" >&2
-    exit 1
+    DAY=$(date +%d)
 fi
+echo "fetching input for day $DAY"
 
 curl https://adventofcode.com/2021/day/$DAY/input --cookie "session=$AOC_SESSION" >Fixtures/puzzle$DAY.txt
