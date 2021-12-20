@@ -20,8 +20,14 @@ struct Puzzle20 {
 
     struct Image {
         let pixels: [Point: Bool]
+        let backgroundLit: Bool
 
-        init(data: [String]) {
+        init(pixels: [Point: Bool], backgroundLit: Bool) {
+            self.pixels = pixels
+            self.backgroundLit = backgroundLit
+        }
+
+        static func pixels(from data: [String]) -> [Point: Bool] {
             var pixels = [Point: Bool]()
             for (y, line) in data.enumerated() {
                 for (x, ch) in line.enumerated() {
@@ -29,16 +35,7 @@ struct Puzzle20 {
                     pixels[point] = ch == "#"
                 }
             }
-            self.pixels = pixels
-
-            let p = Point(x: -10, y: -10)
-            print(p.neighbors())
-            print(sample(p.neighbors()))
-            print()
-        }
-
-        init(pixels: [Point: Bool]) {
-            self.pixels = pixels
+            return pixels
         }
 
         var minX: Int { pixels.keys.map { $0.x }.min()! }
@@ -48,8 +45,8 @@ struct Puzzle20 {
 
         func enhance(using bits: [Bool]) -> Image {
             var pixels = [Point: Bool]()
-            for y in minY-30 ... maxY+30 {
-                for x in minX-30 ... maxX+30 {
+            for y in minY-2 ... maxY+2 {
+                for x in minX-2 ... maxX+2 {
                     let point = Point(x: x, y: y)
                     let neighbors = point.neighbors()
                     let sampleIndex = sample(neighbors)
@@ -57,13 +54,18 @@ struct Puzzle20 {
                 }
             }
 
-            return Image(pixels: pixels)
+            var backgroundLit = self.backgroundLit
+            if bits[0] && bits.last == false {
+                backgroundLit.toggle()
+            }
+
+            return Image(pixels: pixels, backgroundLit: backgroundLit)
         }
 
         private func sample(_ points: [Point]) -> Int {
             var value = 0
             for p in points {
-                let bit = pixels[p] ?? false
+                let bit = pixels[p] ?? backgroundLit
                 value <<= 1
                 value |= bit ? 1 : 0
             }
@@ -107,34 +109,33 @@ struct Puzzle20 {
 
         let data = readFile(named: "puzzle20.txt")
 
-        let (enhanceBits, image) = Timer.time(day: 20) { () -> ([Bool], Image) in
+        let (enhanceBits, pixels) = Timer.time(day: 20) { () -> ([Bool], [Point: Bool]) in
             let enhanceBits = data[0].map { $0 == "#" ? true : false }
-            let image = Image(data: Array(data.dropFirst(2)))
-            return (enhanceBits, image)
+            let pixels = Image.pixels(from: Array(data.dropFirst(2)))
+            return (enhanceBits, pixels)
         }
 
         let puzzle = Puzzle20()
 
-        print("Solution for part 1: \(puzzle.part1(enhanceBits, image))")
-        print("Solution for part 2: \(puzzle.part2())")
+        print("Solution for part 1: \(puzzle.part1(enhanceBits, pixels))")
+        print("Solution for part 2: \(puzzle.part2(enhanceBits, pixels))")
     }
 
-    private func part1(_ bits: [Bool], _ image: Image) -> Int {
+    private func part1(_ bits: [Bool], _ pixels: [Point: Bool]) -> Int {
         let timer = Timer(day: 20); defer { timer.show() }
-
-        image.dump()
-        var enh = image.enhance(using: bits)
-//        print()
-//        enh.dump()
-//        print(enh.count())
-        enh = enh.enhance(using: bits)
-//        print()
-//        enh.dump()
-        return enh.count()
+        var image = Image(pixels: pixels, backgroundLit: false)
+        for _ in 0..<2 {
+            image = image.enhance(using: bits)
+        }
+        return image.count()
     }
 
-    private func part2() -> Int {
+    private func part2(_ bits: [Bool], _ pixels: [Point: Bool]) -> Int {
         let timer = Timer(day: 20); defer { timer.show() }
-        return 42
+        var image = Image(pixels: pixels, backgroundLit: false)
+        for _ in 0..<50 {
+            image = image.enhance(using: bits)
+        }
+        return image.count()
     }
 }
