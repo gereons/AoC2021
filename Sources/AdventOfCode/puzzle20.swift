@@ -21,10 +21,19 @@ struct Puzzle20 {
     struct Image {
         let pixels: [Point: Bool]
         let backgroundLit: Bool
+        private var minX: Int
+        private var maxX: Int
+        private var minY: Int
+        private var maxY: Int
 
         init(pixels: [Point: Bool], backgroundLit: Bool) {
             self.pixels = pixels
             self.backgroundLit = backgroundLit
+
+            minX = pixels.keys.map { $0.x }.min()!
+            maxX = pixels.keys.map { $0.x }.max()!
+            minY = pixels.keys.map { $0.y }.min()!
+            maxY = pixels.keys.map { $0.y }.max()!
         }
 
         static func pixels(from data: [String]) -> [Point: Bool] {
@@ -32,16 +41,14 @@ struct Puzzle20 {
             for (y, line) in data.enumerated() {
                 for (x, ch) in line.enumerated() {
                     let point = Point(x: x, y: y)
-                    pixels[point] = ch == "#"
+                    if ch == "#" {
+                        pixels[point] = true
+                    }
                 }
             }
+
             return pixels
         }
-
-        var minX: Int { pixels.keys.map { $0.x }.min()! }
-        var maxX: Int { pixels.keys.map { $0.x }.max()! }
-        var minY: Int { pixels.keys.map { $0.y }.min()! }
-        var maxY: Int { pixels.keys.map { $0.y }.max()! }
 
         func enhance(using bits: [Bool]) -> Image {
             var pixels = [Point: Bool]()
@@ -87,7 +94,7 @@ struct Puzzle20 {
             for y in minY...maxY {
                 for x in minX ... maxX {
                     let point = Point(x: x, y: y)
-                    let pixel = pixels[point]! // ?? false
+                    let pixel = pixels[point] ?? false
                     print(pixel ? "#" : ".", terminator: "")
                 }
                 print()
