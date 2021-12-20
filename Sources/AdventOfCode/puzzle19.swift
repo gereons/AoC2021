@@ -74,36 +74,13 @@ struct Puzzle19 {
             default: fatalError()
             }
         }
-
     }
 
-    struct BeaconMeasurement: Equatable {
+    struct BeaconMeasurement {
         let points: [Point]
-        let distances: [Double: Int]
-
-        static func == (lhs: BeaconMeasurement, rhs: BeaconMeasurement) -> Bool {
-            Set(lhs.points) == Set(rhs.points)
-        }
 
         init(_ points: [Point]) {
             self.points = points
-
-            var distances = [Double: Int]()
-            for i in 0..<points.count-1 {
-                for j in i+1 ..< points.count {
-                    if i == j {
-                        continue
-                    }
-                    let p1 = points[i]
-                    let p2 = points[j]
-                    let dx = Double(p1.x-p2.x)
-                    let dy = Double(p1.y-p2.y)
-                    let dz = Double(p1.z-p2.z)
-                    let distance = sqrt(pow(dx, 2) + pow(dy, 2) + pow(dz, 2))
-                    distances[distance, default: 0] += 1
-                }
-            }
-            self.distances = distances
         }
 
         func print() {
@@ -114,11 +91,11 @@ struct Puzzle19 {
 
         // MARK: - rot
         func rotations() -> [BeaconMeasurement] {
-            var result = [0, 90, 180, 270].map { self.rotateY($0) }
-            result.append(contentsOf: [90, 180].map { self.rotateZ($0) })
+            var result = [0, 90, 180, 270].map { self.rotateX($0) }
+            result.append(contentsOf: [90, 270].map { self.rotateY($0) })
 
             let x = result.flatMap { s in
-                [0, 90, 180, 270].map { s.rotateX($0) }
+                [0, 90, 180, 270].map { s.rotateZ($0) }
             }
             assert(x.count == 24)
             return x
@@ -141,138 +118,84 @@ struct Puzzle19 {
     }
 
     class Scanner {
-        var origin: Point?
         let measurement: BeaconMeasurement
         private(set) var adjustedMeasurement: BeaconMeasurement?
+        var origin: Point?
 
         init(_ measurement: BeaconMeasurement) {
             self.measurement = measurement
         }
 
-        func matchBeacons(with other: Scanner) {
-//            var locations = [Point: Int]()
-//            var otherOrigin: Point?
-//            var rotatedMeasurement: BeaconMeasurement?
-//
-//            for p1 in self.measurement.points {
-//                let d1 = self.measurement.distances[p1]!
-//                for rotated in other.measurement.rotations() {
-//                    for (p2, d2) in rotated.distances {
-//                        if d2.intersection(d1).count == 11 {
-//                            // print("\(p1) matches \(p2)")
-//                            // print("scanner is at \(abs(p1.x-p2.x)),\(abs(p1.y-p2.y))")
-//                            let scannerLocation = Point(p1.x-p2.x, p1.y-p2.y, p1.z-p2.z)
-//                            locations[scannerLocation, default: 0] += 1
-//                            if locations[scannerLocation]! >= 12 {
-//                                print("scanner is at", scannerLocation)
-//                                rotated.print()
-//                                otherOrigin = scannerLocation
-//                                rotatedMeasurement = rotated
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//            if let otherOrigin = otherOrigin, let rotatedMeasurement = rotatedMeasurement {
-//                print("other is at \(otherOrigin)")
-//                other.setOrigin(otherOrigin, relativeTo: self.origin!, matchingMeasurement: rotatedMeasurement)
-//            } else {
-//                print("other doesn't match")
-//            }
+        func findMatch(with other: Scanner, commonBeacons: Int) {
+            let points = self.measurement.points
+
+            var offsets = [Point: Int]()
+            var matchingOffset: Point?
+            var rotatedMeasurement: BeaconMeasurement?
+            for rotated in other.measurement.rotations() {
+                let otherPoints = rotated.points
+
+                for point in points {
+                    for otherPoint in otherPoints {
+                        let dx = otherPoint.x - point.x
+                        let dy = otherPoint.y - point.y
+                        let dz = otherPoint.z - point.z
+                        let offset = Point(dx, dy, dz)
+                        offsets[offset, default: 0] += 1
+
+                        if offsets[offset]! >= commonBeacons {
+                            matchingOffset = offset
+                            rotatedMeasurement = rotated
+                        }
+                    }
+                }
+            }
+            if let matchingOffset = matchingOffset, let rotatedMeasurement = rotatedMeasurement {
+                print("match at", matchingOffset)
+                let x = Point(
+                    matchingOffset.x - self.origin!.x,
+                    matchingOffset.y - self.origin!.y,
+                    matchingOffset.z - self.origin!.z)
+                print(x)
+                let adjustedPoints =
+                    rotatedMeasurement.points.map {
+                        Point($0.x + matchingOffset.x - self.origin!.x,
+                              $0.y + matchingOffset.y - self.origin!.y,
+                              $0.z + matchingOffset.z - self.origin!.z)
+                    }
+                other.adjustedMeasurement = BeaconMeasurement(adjustedPoints)
+                other.origin = matchingOffset
+            } else {
+                print("no match")
+            }
         }
 
         private func setOrigin(_ newOrigin: Point, relativeTo point: Point, matchingMeasurement: BeaconMeasurement) {
             self.origin = newOrigin
-
-            matchingMeasurement.print()
-
         }
     }
 
     static func run() {
         // let data = readFile(named: "puzzle19.txt")
 
-        let bm = BeaconMeasurement([
-        Point(-1,-1,1),
-        Point(-2,-2,2),
-        Point(-3,-3,3),
-        Point(-2,-3,1),
-        Point(5,6,-4),
-        Point(8,0,7) ])
-        bm.print()
-
-        for (i, rot) in bm.rotations().enumerated() {
-            assert(rot.distances == bm.distances)
-        }
-
-
-//        let m = BeaconMeasurement([
-//        Point(-1,-1,1),
-//        Point(-2,-2,2),
-//        Point(-3,-3,3),
-//        Point(-2,-3,1),
-//        Point(5,6,-4),
-//        Point(8,0,7) ])
-//
-//        let compare = [
-//        BeaconMeasurement([
-//        Point(1,-1,1),
-//        Point(2,-2,2),
-//        Point(3,-3,3),
-//        Point(2,-1,3),
-//        Point(-5,4,-6),
-//        Point(-8,-7,0)]),
-//        BeaconMeasurement([
-//        Point(-1,-1,-1),
-//        Point(-2,-2,-2),
-//        Point(-3,-3,-3),
-//        Point(-1,-3,-2),
-//        Point(4,6,5),
-//        Point(-7,0,8)]),
-//
-//        BeaconMeasurement([
-//        Point(1,1,-1),
-//        Point(2,2,-2),
-//        Point(3,3,-3),
-//        Point(1,3,-2),
-//        Point(-4,-6,5),
-//        Point(7,0,8)]),
-//
-//        BeaconMeasurement([
-//        Point(1,1,1),
-//        Point(2,2,2),
-//        Point(3,3,3),
-//        Point(3,1,2),
-//        Point(-6,-4,-5),
-//        Point(0,7,-8)])]
-//
-//        m.print()
-//        print()
-//        var cnt = 0
-//        for (i,r) in m.rotations().enumerated() {
-//            for c in compare {
-//                if c == r {
-//                    print(i)
-//                    r.print()
-//                }
-//            }
-//        }
-//        print(cnt == compare.count)
-
         let scanners = measurements.map { Scanner($0) }
         scanners[0].origin = Point.zero
-        let m0 = scanners[0].measurement
-        let m1 = scanners[1].measurement
 
-        let d1 = Set(m0.distances.keys)
-        let d2 = Set(m1.distances.keys)
-        let i = d1.intersection(d2)
-        print(i.count)
+        scanners[0].findMatch(with: scanners[1], commonBeacons: 12)
+        scanners[1].findMatch(with: scanners[4], commonBeacons: 12)
+        scanners[4].findMatch(with: scanners[2], commonBeacons: 12)
+        scanners[1].findMatch(with: scanners[3], commonBeacons: 12)
 
-        // scanners[0].matchBeacons(with: scanners[1])
-//        scanners[0].matchBeacons(with: scanners[2])
-//        scanners[0].matchBeacons(with: scanners[3])
-//        scanners[1].matchBeacons(with: scanners[4])
+        var points = Set<Point>()
+        for s in scanners {
+            if let p = s.adjustedMeasurement {
+                points.formUnion(p.points)
+            } else {
+                points.formUnion(s.measurement.points)
+            }
+        }
+
+        print(points.count)
 
 //        let puzzle = Puzzle19()
 //
