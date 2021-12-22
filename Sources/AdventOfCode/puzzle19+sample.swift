@@ -145,5 +145,5 @@ extension Puzzle19 {
     Point(-652,-548,-490),
     Point(30,-46,-14) ])
 
-    static let measurements = [bm0, bm1, bm2, bm3, bm4]
+    static let testMeasurements = [bm0, bm1, bm2, bm3, bm4]
 }
