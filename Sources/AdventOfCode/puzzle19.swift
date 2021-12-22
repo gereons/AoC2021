@@ -74,6 +74,13 @@ struct Puzzle19 {
             default: fatalError()
             }
         }
+
+        func distance(to point: Point) -> Int {
+            let dx = abs(x - point.x)
+            let dy = abs(y - point.y)
+            let dz = abs(z - point.z)
+            return dx + dy + dz
+        }
     }
 
     struct BeaconMeasurement {
@@ -116,7 +123,7 @@ struct Puzzle19 {
             return BeaconMeasurement(points)
         }
 
-        func matches(_ other: BeaconMeasurement, commonBeacons: Int) -> BeaconMeasurement? {
+        func matches(_ other: BeaconMeasurement, commonBeacons: Int) -> (BeaconMeasurement, Point)? {
             var offsets = [Point: Int]()
 
             for rotated in other.rotations() {
@@ -139,7 +146,7 @@ struct Puzzle19 {
                                           $0.y - offset.y,
                                           $0.z - offset.z)
                                 }
-                            return BeaconMeasurement(adjustedPoints)
+                            return (BeaconMeasurement(adjustedPoints), offset)
                         }
                     }
                 }
@@ -173,15 +180,17 @@ struct Puzzle19 {
 
         let puzzle = Puzzle19()
 
-        print("Solution for part 1: \(puzzle.part1(measurements))")
-        // print("Solution for part 2: \(puzzle.part2(measurements))")
+        let (count, distance) = puzzle.part1and2(measurements)
+        print("Solution for part 1: \(count)")
+        print("Solution for part 2: \(distance)")
     }
 
-    private func part1(_ measurements: [BeaconMeasurement]) -> Int {
+    private func part1and2(_ measurements: [BeaconMeasurement]) -> (Int, Int) {
         let timer = Timer(day: 19); defer { timer.show() }
 
         var allBeacons = Set<Point>()
         var merged = Set<Int>()
+        var origins = [Point.zero]
         allBeacons.formUnion(measurements[0].points)
 
         while merged.count < measurements.count - 1 {
@@ -191,19 +200,23 @@ struct Puzzle19 {
                 }
 
                 let origin = BeaconMeasurement(Array(allBeacons))
-                if let match = origin.matches(measurements[i], commonBeacons: 12) {
+                if let (match, origin) = origin.matches(measurements[i], commonBeacons: 12) {
                     allBeacons.formUnion(match.points)
                     merged.insert(i)
+                    origins.append(origin)
                     // print("merged", i, allBeacons.count)
                 }
             }
         }
 
-        return allBeacons.count
-    }
+        var maxDistance = 0
+        for i in 0..<origins.count - 1 {
+            for j in i+1..<origins.count {
+                let distance = origins[i].distance(to: origins[j])
+                maxDistance = max(maxDistance, distance)
+            }
+        }
 
-    private func part2(_ data: [String]) -> Int {
-        let timer = Timer(day: 19); defer { timer.show() }
-        return 42
+        return (allBeacons.count, maxDistance)
     }
 }
