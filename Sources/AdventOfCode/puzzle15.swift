@@ -4,7 +4,7 @@ private struct Point: Hashable {
     let x, y: Int
 }
 
-extension Point: Coordinate {}
+extension Point: Coordinate { }
 
 private class Grid {
     private var data: [[Int]]

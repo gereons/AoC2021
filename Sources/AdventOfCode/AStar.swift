@@ -15,6 +15,15 @@ protocol Coordinate: Hashable {
 protocol Pathfinding {
     func neighbors<C: Coordinate>(for: C) -> [C]
     func costToMove<C: Coordinate>(from: C, to: C) -> Int
+
+    func hScore<C: Coordinate>(from: C, to: C) -> Int
+}
+
+extension Pathfinding {
+    // use manhattan distance as heuristic
+    func hScore<C: Coordinate>(from: C, to: C) -> Int {
+        abs(to.y - from.y) + abs(to.x - from.x)
+    }
 }
 
 // MARK: - implementation
@@ -64,11 +73,6 @@ final class AStarPathfinder {
         openSteps.sort { $0.fScore <= $1.fScore }
     }
 
-    // manhattan distance
-    private func hScore<P: Coordinate>(from fromPoint: P, to toPoint: P) -> Int {
-        abs(toPoint.y - fromPoint.y) + abs(toPoint.x - fromPoint.x)
-    }
-
     func shortestPathFrom<C: Coordinate>(_ start: C, to dest: C) -> [C] {
         var closedSteps = Set<PathStep<C>>()
         var openSteps = [PathStep(point: start)]
@@ -107,7 +111,7 @@ final class AStarPathfinder {
                     }
                 } else {
                     step.setParent(currentStep, withMoveCost: moveCost)
-                    step.hScore = hScore(from: step.point, to: dest)
+                    step.hScore = grid.hScore(from: step.point, to: dest)
 
                     insertStep(step, inOpenSteps: &openSteps)
                 }
