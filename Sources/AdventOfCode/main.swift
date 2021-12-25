@@ -26,8 +26,8 @@ let fixturePath = "Developer/AdventOfCode/AoC2021/Fixtures"
 //Puzzle21.run()
 //Puzzle22.run()
 //Puzzle23.run()
-//Puzzle24.run()
-Puzzle25.run()
+Puzzle24.run()
+//Puzzle25.run()
 Timer.showTotal()
 
 public func readFile(named name: String) -> [String] {
