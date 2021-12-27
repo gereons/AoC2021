@@ -2,18 +2,15 @@ import Foundation
 
 struct Puzzle25 {
     static let testData = [
-//        "v...>>.vv>",
-//        ".vv>>.vv..",
-//        ">>.>v>...v",
-//        ">>v>>.>.v.",
-//        "v>v.vv.v..",
-//        ">.>>..v...",
-//        ".vv..>.>v.",
-//        "v.v..>>v.v",
-//        "....v..v.>"
-
-
-        "...>>>>>..."
+        "v...>>.vv>",
+        ".vv>>.vv..",
+        ">>.>v>...v",
+        ">>v>>.>.v.",
+        "v>v.vv.v..",
+        ">.>>..v...",
+        ".vv..>.>v.",
+        "v.v..>>v.v",
+        "....v..v.>"
     ]
 
     enum Cucumber {

@@ -1,6 +1,6 @@
 import Foundation
 
-struct Puzzle24 {
+class Puzzle24 {
     static let testData = [
         "inp w",
         "add z w",
@@ -99,184 +99,121 @@ struct Puzzle24 {
         }
     }
 
-    let params = [
-        [1,11,5],
-        [1,13,5],
-        [1,12,1],
-        [1,15,15],
-        [1,10,2],
-        [26,-1,2],
-        [1,14,5],
-        [26,-8,8],
-        [26,-7,14],
-        [26,-8,12],
-        [1,11,7],
-        [26,-2,14],
-        [26,-2,13],
-        [26,-13,6]
-    ]
+    struct Input {
+        let divZ, addX, addY: Int
 
-    struct CacheKey: Hashable, Codable {
-        let position: Int
-        let input: Int
-        let initialZ: Int
+        init(_ divZ: Int, _ addX: Int, _ addY: Int) {
+            self.divZ = divZ
+            self.addX = addX
+            self.addY = addY
+        }
     }
+
+    let inputs = [
+        // divZ, addX, addY
+        Input(1,   11,  5),
+        Input(1,   13,  5),
+        Input(1,   12,  1),
+        Input(1,   15, 15),
+        Input(1,   10,  2),
+        Input(26,  -1,  2),
+        Input(1,   14,  5),
+        Input(26,  -8,  8),
+        Input(26,  -7, 14),
+        Input(26,  -8, 12),
+        Input(1,   11,  7),
+        Input(26,  -2, 14),
+        Input(26,  -2, 13),
+        Input(26, -13,  6)
+    ]
 
     static func run() {
         // let data = testData
-        let data = readFile(named: "puzzle24.txt")
-
-        let program = Timer.time(day: 24) {
-            data.map { Instruction($0) }
-        }
+//        let data = readFile(named: "puzzle24.txt")
+//
+//        let program = Timer.time(day: 24) {
+//            data.map { Instruction($0) }
+//        }
 
         let puzzle = Puzzle24()
 
-        puzzle.cacheTest()
-//
-//        print("Solution for part 1: \(puzzle.part1(program))")
-//        print("Solution for part 2: \(puzzle.part2(data))")
+        let (min, max) = puzzle.part1and2()
+        print("Solution for part 1: \(max)")
+        print("Solution for part 2: \(min)")
     }
 
-    private func part1(_ program: [Instruction]) -> Int {
+    struct Key: Hashable {
+        let group, prevZ: Int
+    }
+
+    private var cache = [Key: [String]]()
+    private var maxZ = [Int]()
+
+    private func part1and2() -> (String, String) {
         let timer = Timer(day: 24); defer { timer.show() }
 
-        var cache = [CacheKey: Int]()
-
-        var subroutines = [[Instruction]]()
-        for i in stride(from: 0, to: program.count, by: 18) {
-            let subroutine = Array(program[i..<i+18])
-            subroutines.append(subroutine)
+        for index in 0..<inputs.count {
+            let max = inputs.dropFirst(index).map { $0.divZ }.reduce(1, *)
+            maxZ.append(max)
         }
-        assert(subroutines.count == params.count)
-//        let alu = ALU()
 
-        var targetZ = Set([0])
-        for (index, _) in subroutines.enumerated().reversed() {
-//            print("-- digit \(index) ---")
+        let validNumbers = findValidNumbers(0, 0) ?? []
 
-            var nextTarget = Set<Int>()
-            for initialZ in 0...1_000_000 {
-                for input in 1...9 {
-//                    alu.reset()
-//                    alu.z = initialZ
-//                    alu.run(sr, [input])
-//                    let az = alu.z
-                    let mz = monadOp(w: input, z: initialZ, params[index])
-//                    assert(az == mz)
-                    if targetZ.contains(mz) {
-                        // print(index, input, initialZ)
-                        nextTarget.insert(initialZ)
-                        let key = CacheKey(position: index, input: input, initialZ: initialZ)
-                        cache[key] = mz
+        let min = validNumbers.min()!
+        let max = validNumbers.max()!
+        return (min, max)
+    }
+
+    private func findValidNumbers(_ group: Int, _ prevZ: Int) -> [String]? {
+        if let cached = cache[Key(group: group, prevZ: prevZ)] {
+            return cached
+        }
+
+        if group >= 14 {
+            if prevZ == 0 { return [""] }
+            return nil
+        }
+
+        if prevZ > maxZ[group] {
+            return nil
+        }
+
+        var result = [String]()
+
+        let nextW = inputs[group].addX + prevZ % 26
+
+        if 0 < nextW && nextW < 10 {
+            let nextZ = monadOp(w: nextW, z: prevZ, inputs[group])
+            if let nextStrings = findValidNumbers(group + 1, nextZ) {
+                for n in nextStrings {
+                    result.append("\(nextW)\(n)")
+                }
+            }
+        } else {
+            for i in 1...9 {
+                let nextZ = monadOp(w: i, z: prevZ, inputs[group])
+                if let nextStrings = findValidNumbers(group + 1, nextZ) {
+                    for n in nextStrings {
+                        result.append("\(i)\(n)")
                     }
                 }
             }
-
-            targetZ = nextTarget
-            nextTarget.removeAll()
         }
 
-        do {
-            let data = try JSONEncoder().encode(cache)
-            let url = URL(fileURLWithPath: "/tmp/day24.json")
-            try data.write(to: url)
-        } catch {
-            print(error)
-        }
-
-        for index in 0..<subroutines.count {
-            let keys = cache.keys.filter { $0.position == index }.count
-            print("position", index, "count", keys)
-        }
-
-        if let max = findMax(cache, position: 0, initialZ: 0, value: 0) {
-            print(max, isValid(max))
-        }
-
-        return 42
+        cache[Key(group: group, prevZ: prevZ)] = result
+        return result
     }
 
-    private func cacheTest() {
-        let cache: [CacheKey: Int]
-        do {
-            let url = URL(fileURLWithPath: "/tmp/day24.json")
-            let data = try Data(contentsOf: url)
-            cache = try JSONDecoder().decode([CacheKey: Int].self, from: data)
-        } catch {
-            print(error)
-            fatalError()
-        }
-
-//        print(cache.count)
-
-//        for index in 0..<14 {
-//            let keys = cache.keys.filter { $0.position == index }.count
-//            print("position", index, "count", keys)
-//        }
-
-//        let k1 = cache.keys.filter { $0.position == 2 }
-//        for k in k1 {
-//            print(k, cache[k]!)
-//        }
-
-        for firstDigit in (1...9).reversed() {
-            if let max = findMax(cache, position: 0, initialZ: 0, value: firstDigit) {
-                print(max, isValid(max))
-            }
-        }
-    }
-
-    private func findMax(_ cache: [CacheKey: Int], position: Int, initialZ: Int, value: Int) -> Int? {
-        print("findMax position=\(position)")
-        print("testing", value, "z=\(zValue(value))")
-        if position == 13 {
-            return value
-        }
-
-        let keys = cache.keys
-            .filter { $0.position == position + 1}
-            .filter { $0.initialZ == initialZ }
-            .sorted { $0.input > $1.input }
-        print("keys found: \(keys.count) \(keys.map { $0.input })")
-        for k in keys {
-            let val = value * 10 + k.input
-            let z = cache[k]!
-            if let v = findMax(cache, position: position+1, initialZ: z, value: val) {
-                return v
-            }
-        }
-        // print("no match")
-        return nil
-    }
-
-    private func isValid(_ number: Int) -> Bool {
-        zValue(number) == 0
-    }
-
-    private func zValue(_ number: Int) -> Int {
-        var z = 0
-        for (index, n) in String(number).map({ Int(String($0))! }).enumerated() {
-            z = monadOp(w: n, z: z, params[index])
-        }
-        return z
-    }
-
-    func monadOp(w: Int, z: Int, _ p: [Int]) -> Int {
+    func monadOp(w: Int, z: Int, _ input: Input) -> Int {
         var z = z
-        var x = (z % 26) + p[1]
-        z /= p[0]
+        var x = (z % 26) + input.addX
+        z /= input.divZ
         x = (x != w) ? 1 : 0
         var y = (25 * x) + 1
         z *= y
-        y = (w + p[2]) * x
+        y = (w + input.addY) * x
         z += y
         return z
-    }
-
-    private func part2(_ data: [String]) -> Int {
-        let timer = Timer(day: 24); defer { timer.show() }
-        return 42
     }
 }
 
