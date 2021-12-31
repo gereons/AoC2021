@@ -28,14 +28,14 @@ extension Pathfinding {
 
 // MARK: - implementation
 
-private final class PathStep<C: Coordinate>: Hashable, CustomDebugStringConvertible {
+private final class PathStep<C: Coordinate>: Hashable, Comparable, CustomDebugStringConvertible {
     let point: C
     var parent: PathStep?
 
     private(set) var gScore = 0
     var hScore = 0
     var fScore: Int {
-        return gScore + hScore
+        gScore + hScore
     }
 
     func hash(into hasher: inout Hasher) {
@@ -53,11 +53,15 @@ private final class PathStep<C: Coordinate>: Hashable, CustomDebugStringConverti
     }
 
     static func ==(lhs: PathStep, rhs: PathStep) -> Bool {
-        return lhs.point == rhs.point
+        lhs.point == rhs.point
+    }
+
+    static func < (lhs: PathStep, rhs: PathStep) -> Bool {
+        lhs.fScore < rhs.fScore
     }
 
     var debugDescription: String {
-        return "pos=\(point) g=\(gScore) h=\(hScore) f=\(fScore)"
+        "pos=\(point) g=\(gScore) h=\(hScore) f=\(fScore)"
     }
 }
 
@@ -75,10 +79,11 @@ final class AStarPathfinder {
 
     func shortestPathFrom<C: Coordinate>(_ start: C, to dest: C) -> [C] {
         var closedSteps = Set<PathStep<C>>()
-        var openSteps = [PathStep(point: start)]
+        var openSteps = Heap<PathStep<C>>.minHeap()
+        openSteps.insert(PathStep(point: start))
 
         while !openSteps.isEmpty {
-            let currentStep = openSteps.remove(at: 0)
+            let currentStep = openSteps.pop()!
             closedSteps.insert(currentStep)
 
             if currentStep.point == dest {
@@ -104,16 +109,15 @@ final class AStarPathfinder {
                     let step = openSteps[existingIndex]
 
                     if currentStep.gScore + moveCost < step.gScore {
+                        let step = openSteps.delete(at: existingIndex)!
                         step.setParent(currentStep, withMoveCost: moveCost)
-
-                        openSteps.remove(at: existingIndex)
-                        insertStep(step, inOpenSteps: &openSteps)
+                        openSteps.insert(step)
                     }
                 } else {
                     step.setParent(currentStep, withMoveCost: moveCost)
                     step.hScore = grid.hScore(from: step.point, to: dest)
 
-                    insertStep(step, inOpenSteps: &openSteps)
+                    openSteps.insert(step)
                 }
             }
         }
