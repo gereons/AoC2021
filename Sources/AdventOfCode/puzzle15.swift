@@ -4,8 +4,6 @@ private struct Point: Hashable {
     let x, y: Int
 }
 
-extension Point: Coordinate { }
-
 private class Grid {
     private var data: [[Int]]
 
@@ -59,16 +57,20 @@ private class Grid {
     }
 }
 
+// Pathfinding conformance
 extension Grid: Pathfinding {
+    typealias Coordinate = Point
 
-    func costToMove<C: Coordinate>(from: C, to: C) -> Int {
+    func hScore(from: Point, to: Point) -> Int {
+        return abs(from.x - to.x) + abs(from.y - to.y)
+    }
+
+    func costToMove(from: Point, to: Point) -> Int {
         data[to.y][to.x]
     }
 
-    // Pathfinding conformance
-
-    func neighbors<C: Coordinate>(for point: C) -> [C] {
-        var result = [C]()
+    func neighbors(for point: Point) -> [Point] {
+        var result = [Point]()
         let offsets = [
                       (0, -1),
             (-1,  0),           (1, 0),
@@ -79,7 +81,7 @@ extension Grid: Pathfinding {
             let nx = point.x + offset.0
             let ny = point.y + offset.1
             if nx >= 0 && nx < size && ny >= 0 && ny < size {
-                result.append(C(x: nx, y: ny))
+                result.append(Point(x: nx, y: ny))
             }
         }
 
