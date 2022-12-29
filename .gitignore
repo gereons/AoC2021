@@ -3,3 +3,5 @@
 /Packages
 /*.xcodeproj
 .swiftpm
+Sources/puzzle*input.swift
+.aoc-session
