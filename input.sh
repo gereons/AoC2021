@@ -1,19 +1,24 @@
 #!/bin/sh
 
-YR=2021
+YR=2024
 DAY=$1
 
 if [ -z "$DAY" ]; then
-    DAY=$(date +%d)
+    DAY=$(date +%e | tr -d " ")
+fi
+
+if [ -r .aoc-session ]; then
+    AOC_SESSION=$(cat .aoc-session)
+fi
+
+if [ -z "$AOC_SESSION" ]; then
+    echo "no session found"
+    exit 1
 fi
 
 echo "getting puzzle input for day $DAY"
 
 D2=$(printf "%02d" $DAY)
-
-TMP=.input.$$.tmp
-
-curl -s https://adventofcode.com/$YR/day/$DAY/input --cookie "session=$AOC_SESSION" >$TMP
 
 (
 cat <<END
@@ -21,16 +26,15 @@ cat <<END
 // Advent of Code $YR - input for day $D2
 //
 
-extension Puzzle$DAY {
-static let rawInput = #"""
+extension Day$D2 {
+static let input = #"""
 END
 
-cat $TMP
+UA="https://github.com/gereons/aoc2024"
+curl -s https://adventofcode.com/$YR/day/$DAY/input --cookie "session=$AOC_SESSION" -H "User-Agent: $UA"
 
 cat <<END
 """#
 }
 END
-) >Sources/puzzle$DAY+input.swift
-
-rm $TMP
+) >Sources/Inputs/Day$D2+Input.swift
