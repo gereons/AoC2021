@@ -40,7 +40,7 @@ final class Day18: AdventOfCodeDay {
 }
 
 extension Day18 {
-    final class Node {
+    final class Node: @unchecked Sendable {
         var value: Int
         var left: Node?
         var right: Node?

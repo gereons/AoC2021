@@ -4,7 +4,7 @@
 
 import AoCTools
 
-private final class Grid {
+private final class Grid: @unchecked Sendable {
     private var data: [[Int]]
 
     var size: Int { data.count }

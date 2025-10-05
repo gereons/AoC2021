@@ -7,7 +7,7 @@ import AoCTools
 final class Day11: AdventOfCodeDay {
     let title = "Dumbo Octopus"
 
-    final class Grid {
+    final class Grid: @unchecked Sendable {
         private(set) var data: [[Int]]
 
         var size: Int { data.count }

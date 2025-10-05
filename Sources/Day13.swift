@@ -12,7 +12,7 @@ final class Day13: AdventOfCodeDay {
         case left(Int)
     }
 
-    final class Grid {
+    final class Grid: @unchecked Sendable {
         private var points: Set<Point>
         private(set) var maxX: Int
         private(set) var maxY: Int

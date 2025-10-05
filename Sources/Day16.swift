@@ -17,7 +17,7 @@ final class Day16: AdventOfCodeDay {
         case packets([Packet])
     }
 
-    struct Packet {
+    struct Packet: Sendable {
         let header: Header
         let content: Content
 

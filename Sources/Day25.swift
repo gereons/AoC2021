@@ -11,7 +11,7 @@ final class Day25: AdventOfCodeDay {
         case east, south
     }
 
-    final class Grid {
+    final class Grid: @unchecked Sendable {
         var points = [Point: Cucumber]()
         let maxX: Int
         let maxY: Int

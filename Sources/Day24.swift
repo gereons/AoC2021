@@ -49,7 +49,7 @@ import AoCTools
  z += y
  */
 
-final class Day24: AdventOfCodeDay {
+final class Day24: AdventOfCodeDay, @unchecked Sendable {
     let title = "Arithmetic Logic Unit"
 
     struct Input {

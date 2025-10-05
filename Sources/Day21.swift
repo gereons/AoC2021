@@ -4,7 +4,7 @@
 
 import AoCTools
 
-final class Day21: AdventOfCodeDay {
+final class Day21: AdventOfCodeDay, @unchecked Sendable {
     let title = "Dirac Dice"
 
     final class Player {

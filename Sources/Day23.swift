@@ -4,7 +4,7 @@
 
 import AoCTools
 
-final class Day23: AdventOfCodeDay {
+final class Day23: AdventOfCodeDay, @unchecked Sendable {
     let title = "Amphipod"
 
     enum Pod: String, Hashable {
