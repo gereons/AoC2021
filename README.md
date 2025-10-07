@@ -1,3 +1,5 @@
+# this repo has moved to https://codeberg.org/gereon/AoC2021
+
 # Advent Of Code 2021
 
 My [AoC 2021](https://adventofcode.com/2021) Solutions in Swift
